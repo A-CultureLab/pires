@@ -1,0 +1,10 @@
+dist
+migrations
+node_modules
+src/generated
+.env
+.dockerignore
+**/.DS_Store
+**.graphql
+*AccountKey.json
+serviceAccountKey*.json

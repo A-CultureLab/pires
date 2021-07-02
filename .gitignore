@@ -1,0 +1,9 @@
+dist
+node_modules
+migrations
+generated
+.env
+**/.DS_Store
+**.graphql
+*AccountKey.json
+serviceAccountKey*.json
