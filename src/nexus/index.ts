@@ -1,4 +1,4 @@
-import { makeSchema } from 'nexus'
+import { makeSchema, queryType } from 'nexus'
 import { nexusPrisma } from 'nexus-plugin-prisma'
 import { DateTimeResolver, JSONObjectResolver } from 'graphql-scalars'
 import { GraphQLScalarType } from 'graphql'
@@ -7,10 +7,13 @@ import * as scalars from './scalars'
 import * as types from './types'
 import * as querys from './querys'
 import * as mutations from './mutations'
+import * as crud from './CRUD'
+
+
 
 
 const schema = makeSchema({
-    types: [scalars, types, querys, mutations],
+    types: [scalars, types, querys, mutations, crud],
     shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
     outputs: {
         schema: __dirname + '/../../schema.graphql',
@@ -39,5 +42,6 @@ const schema = makeSchema({
         }
     })],
 })
+
 
 export default schema
