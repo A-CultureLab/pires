@@ -42,7 +42,7 @@ const apolloServer = new ApolloServer({
 apolloServer.applyMiddleware({
   app,
   path: '/graphql',
-  cors: { credentials: true, origin: process.env.NODE_ENV === 'production' ? 'https://38do.com' : 'http://localhost:3000' }
+  cors: { credentials: true, origin: process.env.NODE_ENV === 'production' ? 'https://38do.com' : '*' }
 })
 
 
