@@ -19,10 +19,11 @@ model User {
   gender             Gender
   birth              DateTime
   // Address
+  addressId          String
   address            String
   postcode           String
-  x                  Float
-  y                  Float
+  latitude           Float
+  longitude          Float
   //
   instagramId        String?
   introduce          String    @db.Text
@@ -34,7 +35,7 @@ model User {
   chatRooms ChatRoom[]
   chats     Chat[]
 
-  @@index([postcode, birth, x, y])
+  @@index([postcode, birth, latitude, longitude])
 }
 
 model Pet {

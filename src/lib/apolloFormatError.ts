@@ -14,7 +14,7 @@ const logger = winston.createLogger({
 
 const formatError = (error: GraphQLError): GraphQLError => {
     let errorMessage = ''
-    console.log(error.message)
+    console.error(error.message)
     // try {
     //     if (error.message.substr(0, ERROR_SIMBOL.length) === ERROR_SIMBOL) errorMessage = error.message.substr(ERROR_SIMBOL.length)
     //     else {

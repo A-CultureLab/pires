@@ -20,7 +20,7 @@ export const mutation = mutationType({
         // Create
         t.crud.updateOneUser()
         t.crud.updateOnePet()
-
+        t.crud.createOneUser()
 
         // Update
 
