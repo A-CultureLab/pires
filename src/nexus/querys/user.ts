@@ -12,6 +12,15 @@ export const iUser = queryField(t => t.field('iUser', {
     }
 }))
 
+// 회원가입 유무 확인
+export const isSignedup = queryField(t => t.field('isSignedup', {
+    type: 'Boolean',
+    resolve: async (_, { }, ctx) => {
+        const user = await getIUser(ctx, true)
+        return !!user
+    }
+}))
+
 
 // kakao access token을 firebase token 으로 변경
 export const kakaoTokenToFirebaseToken = queryField(t => t.nonNull.field('kakaoTokenToFirebaseToken', {

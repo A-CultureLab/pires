@@ -18,10 +18,6 @@ export const query = queryType({
 export const mutation = mutationType({
     definition(t) {
         // Create
-        t.crud.updateOneUser()
-        t.crud.updateOnePet()
-        t.crud.createOneUser()
-
         // Update
 
 
