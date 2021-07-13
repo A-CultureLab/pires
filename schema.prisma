@@ -50,6 +50,7 @@ model Pet {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  orderKey  Int // 어레이 정렬 키
 
   name       String
   image      String

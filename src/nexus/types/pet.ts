@@ -6,6 +6,7 @@ export const Pet = objectType({
         t.model.id()
         t.model.createdAt()
         t.model.updatedAt()
+        t.model.orderKey()
         t.model.name()
         t.model.image()
         t.model.type()

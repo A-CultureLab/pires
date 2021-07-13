@@ -35,6 +35,7 @@ Table Pet {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
+  orderKey Int [not null]
   name String [not null]
   image String [not null]
   type PetType [not null]
