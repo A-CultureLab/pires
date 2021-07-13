@@ -23,6 +23,5 @@ export const mutation = mutationType({
 
         // Delete
 
-
     }
 })
