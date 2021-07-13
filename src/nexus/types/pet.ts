@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { objectType } from "nexus";
 
 export const Pet = objectType({
@@ -19,5 +20,16 @@ export const Pet = objectType({
         t.model.vaccinated()
         t.model.user()
         t.model.userId()
+        t.nonNull.string('age', {
+            resolve({ birth }) {
+                const today = dayjs()
+                const birthDay = dayjs(birth)
+                const year = today.diff(birthDay, 'year')
+                const month = today.diff(birth, 'month')
+
+                if (month < 12) return (month + 1).toString() + '개월'
+                return (year + 1).toString() + '세'
+            }
+        })
     }
 })
