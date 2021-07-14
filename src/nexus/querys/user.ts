@@ -4,7 +4,7 @@ import { userAuth } from "../../lib/firebase"
 import getIUser from "../../utils/getIUser"
 
 // Query - 내 정보를 가져옴
-export const iUser = queryField(t => t.field('iUser', {
+export const iUser = queryField(t => t.nonNull.field('iUser', {
     type: 'User',
     resolve: async (_, { }, ctx) => {
         const user = await getIUser(ctx)
@@ -13,7 +13,7 @@ export const iUser = queryField(t => t.field('iUser', {
 }))
 
 // 회원가입 유무 확인
-export const isSignedup = queryField(t => t.field('isSignedup', {
+export const isSignedup = queryField(t => t.nonNull.field('isSignedup', {
     type: 'Boolean',
     resolve: async (_, { }, ctx) => {
         const user = await getIUser(ctx, true)
