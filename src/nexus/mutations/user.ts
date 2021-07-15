@@ -1,7 +1,8 @@
-import { mutationField, nonNull, inputObjectType } from "nexus";
+import { mutationField, nonNull, inputObjectType, stringArg } from "nexus";
 import { userAuth } from "../../lib/firebase";
 import getIUser from "../../utils/getIUser";
-
+import { v4 } from 'uuid';
+import axios from "axios";
 
 export const SignupInput = inputObjectType({
     name: 'SignupInput',
@@ -72,5 +73,58 @@ export const updateUser = mutationField(t => t.nonNull.field('updateUser', {
             where: { id: user.id },
             data
         })
+    }
+}))
+
+export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
+    type: 'User',
+    args: {
+        reason: nonNull(stringArg())
+    },
+    resolve: async (_, { reason }, ctx) => {
+        const user = await getIUser(ctx)
+
+        // 반려동물 삭제
+        await ctx.prisma.pet.deleteMany({
+            where: { userId: user.id }
+        })
+        // 유저 정보 더미데이터로 덮어씌우기
+        const updatedUser = await ctx.prisma.user.update({
+            where: { id: user.id },
+            data: {
+                id: 'deleted:' + v4(),
+                name: '탈퇴한 사용자',
+                withdrawDate: new Date(),
+                withdrawReason: reason,
+                address: '',
+                addressId: '',
+                postcode: '',
+                latitude: 0,
+                longitude: 0,
+                birth: new Date(),
+                email: v4(),
+            }
+        })
+        // 파이어베이스 유저 삭제
+        await userAuth.deleteUser(user.id)
+
+        // 카카오 로그인이라면 연결 해제
+        if (user.id.includes('KAKAO')) {
+            try {
+                await axios.post("https://kapi.kakao.com/v1/user/unlink", {
+                    'target_id_type': 'user_id',
+                    'target_id': user.id.replace('KAKAO:', '')
+                }, {
+                    headers: {
+                        'Authorization': 'KakaoAK ' + process.env.KAKAO_KEY
+                    }
+                })
+            } catch (error) {
+                console.error(error.message)
+            }
+        }
+
+
+        return updatedUser
     }
 }))

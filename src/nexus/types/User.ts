@@ -21,6 +21,8 @@ export const User = objectType({
         t.model.agreementDate()
         t.model.marketingPushDate()
         t.model.marketingEmailDate()
+        t.model.withdrawDate()
+        t.model.withdrawReason()
         t.model.pets()
         t.model.chatRooms()
         t.model.chats()

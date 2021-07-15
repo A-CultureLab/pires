@@ -26,6 +26,8 @@ Table User {
   agreementDate DateTime [not null]
   marketingPushDate DateTime
   marketingEmailDate DateTime
+  withdrawDate DateTime
+  withdrawReason String
   pets Pet [not null]
   chatRooms ChatRoom [not null]
   chats Chat [not null]
