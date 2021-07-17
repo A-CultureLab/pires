@@ -8,13 +8,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-generator dbml {
-  provider            = "prisma-dbml-generator"
-  output              = "./"
-  outputName          = "schema.sql"
-  projectName         = "pires"
-  projectDatabaseType = "MySql"
-}
+// generator dbml {
+//   provider            = "prisma-dbml-generator"
+//   output              = "./"
+//   outputName          = "schema.sql"
+//   projectName         = "pires"
+//   projectDatabaseType = "MySql"
+// }
 
 model User {
   id        String   @id
