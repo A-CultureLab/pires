@@ -20,6 +20,7 @@ COPY assets ./assets
 COPY package.json .
 COPY pm2.json .
 COPY schema.prisma .
+# COPY .env .
 
 RUN npm install --production
 RUN npm run generate:prisma

@@ -47,7 +47,7 @@ apolloServer.applyMiddleware({
 
 
 
-const port = process.env.NODE_ENV === 'production' ? 80 : 8080
+const port = 8080
 
 const server = app.listen({ port }, () => {
   process.send && process.send('ready')
