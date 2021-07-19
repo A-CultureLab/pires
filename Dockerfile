@@ -27,4 +27,4 @@ RUN npm run generate:prisma
 
 EXPOSE 8080
 
-CMD ["npm", "run", "pm2"]
+CMD ["npm", "run", "start"]
