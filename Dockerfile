@@ -23,8 +23,8 @@ COPY schema.prisma .
 # COPY .env .
 
 RUN npm install --production
-RUN npm run generate:prisma
+RUN npm run generate
 
 EXPOSE 8080
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "pm2"]
