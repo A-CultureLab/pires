@@ -26,14 +26,14 @@ export const User = objectType({
         t.model.pets()
         t.model.chatRooms()
         t.model.chats()
-        t.nonNull.int('age', {
-            resolve: ({ birth }, { }, ctx) => {
-                const today = new Date()
-                const birthDate = new Date(birth)
+        // t.nonNull.int('age', {
+        //     resolve: ({ birth }, { }, ctx) => {
+        //         const today = new Date()
+        //         const birthDate = new Date(birth)
 
-                const age = today.getFullYear() - birthDate.getFullYear() + 1
-                return age
-            }
-        })
+        //         const age = today.getFullYear() - birthDate.getFullYear() + 1
+        //         return age
+        //     }
+        // })
     }
 })
