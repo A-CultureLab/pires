@@ -26,8 +26,8 @@ export const coordsToRegion = queryField(t => t.nullable.field('coordsToRegion',
     resolve: async (_, { longitude, latitude }) => {
         const { data } = await axios.get('https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc', {
             headers: {
-                'X-NCP-APIGW-API-KEY-ID': process.env['X-NCP-APIGW-API-KEY-ID'],
-                'X-NCP-APIGW-API-KEY': process.env['X-NCP-APIGW-API-KEY']
+                'X-NCP-APIGW-API-KEY-ID': process.env.NCP_ID,
+                'X-NCP-APIGW-API-KEY': process.env.NCP_KEY
             },
             params: {
                 coords: longitude.toString() + ',' + latitude.toString(),
