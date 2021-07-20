@@ -18,12 +18,13 @@ COPY --from=builder app/dist ./dist
 COPY assets ./assets
 
 COPY package.json .
+COPY package-lock.json .
 COPY pm2.json .
 COPY schema.prisma .
 # COPY .env .
 
 RUN npm install --production
-RUN npm run generate
+RUN npm run generate:prisma
 
 EXPOSE 8080
 
