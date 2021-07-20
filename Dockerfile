@@ -17,8 +17,7 @@ WORKDIR /app
 COPY --from=builder app/dist ./dist
 COPY assets ./assets
 
-COPY package.json .
-COPY package-lock.json .
+COPY package*.json .
 COPY pm2.json .
 COPY schema.prisma .
 # COPY .env .
