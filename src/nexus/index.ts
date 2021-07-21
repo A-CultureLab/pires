@@ -35,10 +35,10 @@ const schema = makeSchema({
         experimentalCRUD: true,
         scalars: {
             DateTime: DateTimeResolver,
-            // Json: new GraphQLScalarType({
-            //     ...JSONObjectResolver,
-            //     name: 'Json',
-            // })
+            Json: new GraphQLScalarType({
+                ...JSONObjectResolver,
+                name: 'Json',
+            })
         }
     })],
 })

@@ -24,15 +24,14 @@ export const coordsToRegion = queryField(t => t.nullable.field('coordsToRegion',
         longitude: nonNull(floatArg())
     },
     resolve: async (_, { longitude, latitude }) => {
-        const { data } = await axios.get('https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc', {
+        const { data } = await axios.get('https://dapi.kakao.com/v2/local/geo/coord2address.json', {
             headers: {
-                'X-NCP-APIGW-API-KEY-ID': process.env.NCP_ID,
-                'X-NCP-APIGW-API-KEY': process.env.NCP_KEY
+                'Authorization': process.env.KAKAO_KEY,
             },
             params: {
-                coords: longitude.toString() + ',' + latitude.toString(),
-                orders: 'roadaddr',
-                output: 'json'
+                x: latitude,
+                y: longitude,
+                input_coord: 'WGS84'
             }
         })
 

@@ -21,17 +21,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email              String    @unique
-  name               String
-  image              String
-  gender             Gender
-  birth              DateTime
-  // Address
-  addressId          String
-  address            String
-  postcode           String
-  latitude           Float
-  longitude          Float
+  email  String   @unique
+  name   String
+  image  String
+  gender Gender
+  birth  DateTime
+
   //
   instagramId        String?
   introduce          String    @db.Text
@@ -42,11 +37,27 @@ model User {
   withdrawDate       DateTime? // 회원탈퇴 신철 일자
   withdrawReason     String?   @db.Text
 
+  addressPostcode String
+
+  address   Address    @relation(fields: [addressPostcode], references: [postcode])
   pets      Pet[]
   chatRooms ChatRoom[]
   chats     Chat[]
 
-  @@index([postcode, birth, latitude, longitude])
+
+  @@index([birth, addressPostcode])
+}
+
+model Address {
+  postcode  String   @id // 우편번호
+  updatedAt DateTime @updatedAt
+
+  addressName  String // 풀 주소
+  buildingName String // 건물 이름
+  latitude     Float
+  longitude    Float
+  data         Json // API 결과값 캐싱
+  users        User[]
 }
 
 model Pet {
