@@ -4,52 +4,51 @@ import { config } from 'dotenv'
 
 config()
 
-
-export const region = objectType({
-    name: 'Region',
-    definition(t) {
-        t.nonNull.string('id')
-        t.nonNull.string('address')
-        t.nonNull.string('postcode')
-        t.nonNull.float('latitude')
-        t.nonNull.float('longitude')
-    }
-})
-
 // 좌표를 주소로 전환
 export const coordsToRegion = queryField(t => t.nullable.field('coordsToRegion', {
-    type: region,
+    type: 'Address',
     args: {
         latitude: nonNull(floatArg()),
         longitude: nonNull(floatArg())
     },
-    resolve: async (_, { longitude, latitude }) => {
-        const { data } = await axios.get('https://dapi.kakao.com/v2/local/geo/coord2address.json', {
+    resolve: async (_, { longitude, latitude }, ctx) => {
+        const { data } = await axios.get('https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc', {
             headers: {
-                'Authorization': process.env.KAKAO_KEY,
+                'X-NCP-APIGW-API-KEY-ID': process.env['NCP_ID'],
+                'X-NCP-APIGW-API-KEY': process.env['NCP_KEY']
             },
             params: {
-                x: latitude,
-                y: longitude,
-                input_coord: 'WGS84'
+                coords: longitude.toString() + ',' + latitude.toString(),
+                orders: 'roadaddr',
+                output: 'json'
             }
         })
 
         if (data.status.code !== 0) return null
+
         const land = data.results[0].land
-        let address = ''
+        const postcode = land.addition1.value
 
-        address += land.name
-        if (land.number1) address += ' ' + land.number1
-        if (land.number2) address += ' ' + land.number2
-        if (land.addition0?.value) address += ' ' + land.addition0.value
+        let newAddress = ''
 
-        return {
-            id: data.results[0].code.id,
-            latitude,
+        newAddress += land.name
+        if (land.number1) newAddress += ' ' + land.number1
+        if (land.number2) newAddress += ' ' + land.number2
+
+        const newData = {
+            addressName: newAddress,
+            buildingName: land.addition0.value,
+            latitude, // TODO postcode to latitude 찾아보자
             longitude,
-            postcode: land.addition1.value,
-            address
+            data
         }
+
+
+        const address =
+            await ctx.prisma.address.findUnique({ where: { postcode } }) // 이미 있다면
+                ? await ctx.prisma.address.update({ where: { postcode }, data: newData }) // 업데이트
+                : await ctx.prisma.address.create({ data: { ...newData, postcode } }) // 없다면 생성
+
+        return address
     }
 }))

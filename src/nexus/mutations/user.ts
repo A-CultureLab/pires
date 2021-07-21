@@ -12,11 +12,7 @@ export const SignupInput = inputObjectType({
         t.nonNull.string('image')
         t.nonNull.field('gender', { type: 'Gender' })
         t.nonNull.field('birth', { type: 'DateTime' })
-        t.nonNull.string('addressId')
-        t.nonNull.string('address')
-        t.nonNull.string('postcode')
-        t.nonNull.float('latitude')
-        t.nonNull.float('longitude')
+        t.nonNull.string('addressPostcode')
         t.nullable.string('instagramId')
         t.nonNull.string('introduce')
         t.nonNull.field('agreementDate', { type: 'DateTime' })
@@ -39,7 +35,9 @@ export const signup = mutationField(t => t.nonNull.field('signup', {
         return ctx.prisma.user.create({
             data: {
                 id,
-                ...data
+                ...data,
+                addressPostcode: undefined,
+                address: { connect: { postcode: data.addressPostcode } }
             }
         })
     }
@@ -52,11 +50,7 @@ export const UpdateUserInput = inputObjectType({
         t.nonNull.string('image')
         t.nonNull.field('gender', { type: 'Gender' })
         t.nonNull.field('birth', { type: 'DateTime' })
-        t.nonNull.string('addressId')
-        t.nonNull.string('address')
-        t.nonNull.string('postcode')
-        t.nonNull.float('latitude')
-        t.nonNull.float('longitude')
+        t.nonNull.string('addressPostCodes')
         t.nullable.string('instagramId')
         t.nonNull.string('introduce')
     }
@@ -96,13 +90,9 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
                 name: '탈퇴한 사용자',
                 withdrawDate: new Date(),
                 withdrawReason: reason,
-                address: '',
-                addressId: '',
-                postcode: '',
-                latitude: 0,
-                longitude: 0,
                 birth: new Date(),
                 email: v4(),
+                addressPostcode: '',
             }
         })
         // 파이어베이스 유저 삭제
