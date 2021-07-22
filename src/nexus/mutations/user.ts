@@ -50,7 +50,7 @@ export const UpdateUserInput = inputObjectType({
         t.nonNull.string('image')
         t.nonNull.field('gender', { type: 'Gender' })
         t.nonNull.field('birth', { type: 'DateTime' })
-        t.nonNull.string('addressPostCodes')
+        t.nonNull.string('addressPostcode')
         t.nullable.string('instagramId')
         t.nonNull.string('introduce')
     }
@@ -65,7 +65,11 @@ export const updateUser = mutationField(t => t.nonNull.field('updateUser', {
         const user = await getIUser(ctx)
         return ctx.prisma.user.update({
             where: { id: user.id },
-            data
+            data: {
+                ...data,
+                addressPostcode: undefined,
+                address: data.addressPostcode ? { connect: { postcode: data.addressPostcode } } : undefined
+            }
         })
     }
 }))
