@@ -4,8 +4,6 @@ export const query = queryType({
     definition(t) {
         t.crud.chat()
         t.crud.chats({ filtering: true, pagination: true, ordering: true })
-        t.crud.location()
-        t.crud.locations({ filtering: true, pagination: true, ordering: true })
         t.crud.user()
         t.crud.users({ filtering: true, pagination: true, ordering: true })
         t.crud.chatRoom()

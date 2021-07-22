@@ -57,7 +57,10 @@ model Address {
   latitude     Float
   longitude    Float
   data         Json // API 결과값 캐싱
-  users        User[]
+
+  users User[]
+
+  @@index([postcode, latitude, longitude])
 }
 
 model Pet {
@@ -82,39 +85,6 @@ model Pet {
   userId String
 
   @@index([species, character, birth, weight])
-}
-
-model Location {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name         String
-  phone        String
-  // Address
-  category     LocationCategory
-  x            Float
-  y            Float
-  postCode     String
-  roadAddress  String
-  jibunAddress String
-  //
-
-  images LocationImage[]
-
-  @@index([name, category, x, y])
-}
-
-model LocationImage {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  url String
-
-  location Location? @relation(fields: [locationId], references: [id])
-
-  locationId Int?
 }
 
 model ChatRoom {
@@ -151,10 +121,4 @@ enum Gender {
 enum PetType {
   cat
   dog
-}
-
-enum LocationCategory {
-  hostpital
-  salon
-  store
 }

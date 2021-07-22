@@ -1,7 +1,6 @@
 export * from './user'
 export * from './pet'
-// export * from './location'
 // export * from './chatRoom'
 // export * from './chat'
-// export * from './locationImage'
 export * from './util'
+export * from './address'

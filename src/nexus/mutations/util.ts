@@ -9,7 +9,8 @@ export const uploadImage = mutationField(t => t.field('uploadImage', {
         path: nullable(stringArg())
     },
     resolve: async (_, { image, path }, ctx) => {
-        const uri = await imageUploader(image, path)
+        const uri = await imageUploader(image, path || undefined)
         return uri
     }
 }))
+

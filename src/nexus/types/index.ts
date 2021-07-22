@@ -1,7 +1,5 @@
-export * from './location'
 export * from './pet'
 export * from './chatRoom'
 export * from './chat'
 export * from './user'
-export * from './locationImage'
 export * from './address'
