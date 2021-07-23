@@ -33,6 +33,7 @@ const schema = makeSchema({
     },
     plugins: [nexusPrisma({
         experimentalCRUD: true,
+        paginationStrategy: 'prisma',
         scalars: {
             DateTime: DateTimeResolver,
             Json: new GraphQLScalarType({

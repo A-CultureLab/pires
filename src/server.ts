@@ -26,6 +26,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(expressErrorLogger)
+app.use((req, res, next) => setTimeout(() => next(), 1000)) // delay
 // routing
 
 app.get('/isRunning', (req, res) => res.send('Server is running')) // 서버 구동 확인용 router
