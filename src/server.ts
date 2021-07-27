@@ -7,9 +7,10 @@ import { createContext } from './context'
 import expressErrorLogger from './lib/expressErrorLogger'
 import apolloFormatError from './lib/apolloFormatError'
 import schema from './nexus'
-
+import { createServer } from 'http'
 
 require('dotenv').config()
+
 
 // express 설정
 const app = express()
@@ -31,33 +32,34 @@ app.use((req, res, next) => setTimeout(() => next(), 1000)) // delay
 
 app.get('/isRunning', (req, res) => res.send('Server is running')) // 서버 구동 확인용 router
 
+
+
+const httpServer = createServer(app)
 // apollo 설정
 const apolloServer = new ApolloServer({
   schema,
   context: createContext,
   formatError: apolloFormatError,
+  subscriptions: {
+    onConnect: async (connectionParams, _webSocket, _context) => {
+      console.log('Connected to websocket')
+      return { connectionParams }
+    }
+  },
   uploads: { maxFileSize: 10 * 1024 * 1024, maxFiles: 10 },
   playground: process.env.NODE_ENV === 'production' ? false : { settings: { "request.credentials": 'include' } }
 })
-
+// await apolloServer.start()
 apolloServer.applyMiddleware({
   app,
   path: '/graphql',
-  cors: { credentials: true, origin: process.env.NODE_ENV === 'production' ? 'https://38do.com' : '*' }
+  cors: { credentials: true, origin: process.env.NODE_ENV === 'production' ? 'https://38do.kr' : '*' }
 })
-
+apolloServer.installSubscriptionHandlers(httpServer)
 
 
 const port = process.env.PORT || 8080
 
-const server = app.listen({ port }, () => {
-  process.send && process.send('ready')
+httpServer.listen({ port }, () => {
   console.log(`🚀  Server ready at http://localhost:${port}${apolloServer.graphqlPath}`)
-})
-
-process.on('SIGINT', () => {
-  server.close((err) => {
-    console.log('server closed')
-    process.exit(err ? 1 : 0)
-  })
 })

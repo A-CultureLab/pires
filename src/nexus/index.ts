@@ -7,13 +7,14 @@ import * as scalars from './scalars'
 import * as types from './types'
 import * as querys from './querys'
 import * as mutations from './mutations'
+import * as subscriptions from './subscriptions'
 import * as crud from './CRUD'
 
 
 
 
 const schema = makeSchema({
-    types: [scalars, types, querys, mutations, crud],
+    types: [scalars, types, querys, mutations, crud, subscriptions],
     shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
     outputs: {
         schema: __dirname + '/../../schema.graphql',
