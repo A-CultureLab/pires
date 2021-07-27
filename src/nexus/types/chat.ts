@@ -10,6 +10,7 @@ export const Chat = objectType({
         t.model.image()
         t.model.user()
         t.model.chatRoom()
+        t.model.notReadUsers()
         t.model.userId()
         t.model.chatRoomId()
     }

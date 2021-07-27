@@ -12,22 +12,38 @@ export const chatCreated = subscriptionField('chatCreated', {
     subscribe: withFilter(
         (_, { }, ctx: Context) => ctx.pubsub.asyncIterator(CHAT_CREATED),
         async (payload: Chat, { }, ctx: Context) => {
-            console.log('filter')
-            console.log(payload)
-            // const { id } = await getIUser(ctx)
-            const id = 'KAKAO:1818675922'
+            const { id } = await getIUser(ctx)
+
             const chatRoom = await ctx.prisma.chatRoom.findUnique({
                 where: { id: payload.chatRoomId },
                 include: { users: true }
             })
-            console.log(chatRoom)
-            console.log((chatRoom?.users || []).filter(v => v.id === id).length !== 0)
+
             return (chatRoom?.users || []).filter(v => v.id === id).length !== 0
         }
     ),
-    resolve: (payload: Chat) => {
-        console.log('res')
-        console.log(payload)
+    resolve: async (payload: Chat, { }, ctx) => {
+
+        const user = await getIUser(ctx)
+
+        const notReadChats = await ctx.prisma.chat.findMany({
+            where: {
+                chatRoomId: payload.chatRoomId,
+                notReadUsers: { some: { id: user.id } }
+            },
+            select: {
+                id: true
+            }
+        })
+
+        // 안읽음 메시지 삭제
+        await ctx.prisma.user.update({
+            where: { id: user.id },
+            data: {
+                notReadChats: { disconnect: notReadChats }
+            }
+        })
+
         return payload
     }
 })

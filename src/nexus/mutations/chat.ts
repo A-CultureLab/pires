@@ -18,17 +18,30 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
     },
     resolve: async (_, { input }, ctx) => {
 
-        // const { id } = await getIUser(ctx)
+        const user = await getIUser(ctx)
+
+        const chatRoom = await ctx.prisma.chatRoom.findUnique({
+            where: { id: input.chatRoomId },
+            include: {
+                users: true,
+            }
+        })
+
+        if (!chatRoom?.users.find(v => v.id !== user.id)) throw new Error('no Permission')
+
 
         const chat = await ctx.prisma.chat.create({
             data: {
                 chatRoom: { connect: { id: input.chatRoomId } },
                 message: input.message || undefined,
                 image: input.message || undefined,
-                user: { connect: { id: 'KAKAO:1818675922' } }
+                user: { connect: { id: user.id } },
+                notReadUsers: { connect: chatRoom.users.filter(v => v.id !== user.id).map(v => ({ id: v.id })) }
             }
         })
+
         await ctx.pubsub.publish(CHAT_CREATED, chat)
+
         return chat
     }
 }))

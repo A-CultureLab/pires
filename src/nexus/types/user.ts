@@ -23,6 +23,7 @@ export const User = objectType({
         t.model.pets()
         t.model.chatRooms()
         t.model.chats()
+        t.model.notReadChats()
         t.nonNull.int('age', {
             resolve: ({ birth }, { }, ctx) => {
                 const today = new Date()

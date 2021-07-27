@@ -39,10 +39,11 @@ model User {
 
   addressPostcode String
 
-  address   Address    @relation(fields: [addressPostcode], references: [postcode])
-  pets      Pet[]
-  chatRooms ChatRoom[]
-  chats     Chat[]
+  address      Address    @relation(fields: [addressPostcode], references: [postcode])
+  pets         Pet[]
+  chatRooms    ChatRoom[]
+  chats        Chat[]
+  notReadChats Chat[]     @relation("notReadChatsNotReadUsers")
 
 
   @@index([birth, addressPostcode])
@@ -94,6 +95,8 @@ model ChatRoom {
 
   users User[]
   chats Chat[]
+
+  @@index([updatedAt])
 }
 
 model Chat {
@@ -104,8 +107,9 @@ model Chat {
   message String?
   image   String?
 
-  user     User     @relation(fields: [userId], references: [id])
-  chatRoom ChatRoom @relation(fields: [chatRoomId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
+  chatRoom     ChatRoom @relation(fields: [chatRoomId], references: [id])
+  notReadUsers User[]   @relation("notReadChatsNotReadUsers")
 
   userId     String
   chatRoomId Int
