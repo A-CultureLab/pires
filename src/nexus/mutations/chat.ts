@@ -18,7 +18,8 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
     },
     resolve: async (_, { input }, ctx) => {
 
-        const user = await getIUser(ctx)
+        const user = { id: 'KAKAO:1818675922' }
+        // const user = await getIUser(ctx)
 
         const chatRoom = await ctx.prisma.chatRoom.findUnique({
             where: { id: input.chatRoomId },

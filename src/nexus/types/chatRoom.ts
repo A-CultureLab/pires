@@ -29,5 +29,14 @@ export const ChatRoom = objectType({
                 })
             }
         })
+        t.nonNull.string('name', {
+            resolve: async ({ id }, { }, ctx) => {
+                const user = await getIUser(ctx, true)
+                const users = await ctx.prisma.user.findMany({
+                    where: { chatRooms: { some: { id } } }
+                })
+                return users.filter(v => v.id !== user?.id).map(v => v.name).join(', ')
+            }
+        })
     }
 })

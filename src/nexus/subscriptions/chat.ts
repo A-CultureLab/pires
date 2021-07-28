@@ -6,20 +6,19 @@ import getIUser from "../../utils/getIUser";
 
 export const CHAT_CREATED = 'CHAT_CREATED'
 
-
+// 인증이 없음 나중에 서중해야 할수도 있음
 export const chatCreated = subscriptionField('chatCreated', {
     type: 'Chat',
     subscribe: withFilter(
         (_, { }, ctx: Context) => ctx.pubsub.asyncIterator(CHAT_CREATED),
         async (payload: Chat, { }, ctx: Context) => {
-            const { id } = await getIUser(ctx)
+            const user = await getIUser(ctx)
 
             const chatRoom = await ctx.prisma.chatRoom.findUnique({
                 where: { id: payload.chatRoomId },
                 include: { users: true }
             })
-
-            return (chatRoom?.users || []).filter(v => v.id === id).length !== 0
+            return (chatRoom?.users || []).filter(v => v.id === user.id).length !== 0
         }
     ),
     resolve: async (payload: Chat, { }, ctx) => {
