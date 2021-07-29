@@ -1,17 +1,18 @@
 import { Chat } from "@prisma/client";
 import { withFilter } from "apollo-server-express";
-import { nonNull, stringArg, subscriptionField } from "nexus";
+import { subscriptionField } from "nexus";
 import { Context } from "../../context";
 import getIUser from "../../utils/getIUser";
 
 export const CHAT_CREATED = 'CHAT_CREATED'
 
-// 인증이 없음 나중에 서중해야 할수도 있음
+
 export const chatCreated = subscriptionField('chatCreated', {
     type: 'Chat',
     subscribe: withFilter(
         (_, { }, ctx: Context) => ctx.pubsub.asyncIterator(CHAT_CREATED),
         async (payload: Chat, { }, ctx: Context) => {
+            console.log('chatCreated')
             const user = await getIUser(ctx)
 
             const chatRoom = await ctx.prisma.chatRoom.findUnique({
@@ -22,7 +23,7 @@ export const chatCreated = subscriptionField('chatCreated', {
         }
     ),
     resolve: async (payload: Chat, { }, ctx) => {
-
+        console.log('reslove')
         const user = await getIUser(ctx)
 
         const notReadChats = await ctx.prisma.chat.findMany({

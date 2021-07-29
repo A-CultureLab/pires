@@ -4,7 +4,18 @@ import { userAuth } from '../lib/firebase'
 
 // TODO @ts-ignore
 export const getIUser = async <B = false>(ctx: Context, ignoreError?: B): Promise<B extends true ? User | null : User> => {
-    let token = ctx.expressContext.req.headers.authorization
+    let token: any = ''
+    try {
+        // http
+        token = ctx.expressContext.req.headers.authorization
+    } catch (error) {
+        try {
+            // websocket
+            token = ctx.expressContext.connection?.context.connectionParams.headers.authorization
+        } catch (error) {
+
+        }
+    }
 
     if (!token) {
         // @ts-ignore

@@ -44,12 +44,15 @@ const apolloServer = new ApolloServer({
     onConnect: async (connectionParams, _webSocket, _context) => {
       console.log('Connected to websocket')
       return { connectionParams }
+    },
+    onDisconnect: async (webSocket, context) => {
+      console.log('Disconnected')
     }
   },
   uploads: { maxFileSize: 10 * 1024 * 1024, maxFiles: 10 },
   playground: process.env.NODE_ENV === 'production' ? false : { settings: { "request.credentials": 'include' } }
 })
-// await apolloServer.start()
+
 apolloServer.applyMiddleware({
   app,
   path: '/graphql',
