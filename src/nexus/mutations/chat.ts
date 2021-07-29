@@ -1,6 +1,6 @@
 import { inputObjectType, mutationField, nonNull } from "nexus";
 import getIUser from "../../utils/getIUser";
-import { CHAT_CREATED } from "../subscriptions";
+import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../subscriptions";
 
 const CreateChatInput = inputObjectType({
     name: 'CreateChatInput',
@@ -37,10 +37,14 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                 image: input.message || undefined,
                 user: { connect: { id: user.id } },
                 notReadUsers: { connect: chatRoom.users.filter(v => v.id !== user.id).map(v => ({ id: v.id })) }
+            },
+            include: {
+                chatRoom: true
             }
         })
 
         ctx.pubsub.publish(CHAT_CREATED, chat)
+        ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
 
         return chat
     }

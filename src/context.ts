@@ -11,7 +11,7 @@ export interface Context {
     prisma: PrismaClient
     expressContext: ExpressContext
     pubsub: PubSub
-    // user: User | null
+    userId?: string
 }
 
 export const createContext = async (expressContext: ExpressContext): Promise<Context> => {
