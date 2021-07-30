@@ -1,4 +1,5 @@
 import { intArg, nonNull, nullable, queryField } from "nexus";
+
 import getIUser from "../../utils/getIUser";
 
 export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
@@ -34,8 +35,7 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
             where: { chatRoomId },
             orderBy: { createdAt: 'desc' }
         })
-        console.log(cursor)
-        console.log(chats.map(v => v.id))
+        
         return chats
     }
 }))

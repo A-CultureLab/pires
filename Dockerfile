@@ -1,5 +1,5 @@
 # BUILDER
-FROM node:14 AS builder
+FROM node:12 AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ RUN npm run build:silent
 
 
 # RUNNER
-FROM node:14
+FROM node:12
 WORKDIR /app
 
 COPY --from=builder app/dist ./dist
