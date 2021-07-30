@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["orderByAggregateGroup", "selectRelationCount"]
+  previewFeatures = ["orderByAggregateGroup", "selectRelationCount", "orderByRelation"]
 }
 
 datasource db {
@@ -89,14 +89,15 @@ model Pet {
 }
 
 model ChatRoom {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  Int       @id @default(autoincrement())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  recentChatCreatedAt DateTime?
 
   users User[]
   chats Chat[]
 
-  @@index([updatedAt])
+  @@index([recentChatCreatedAt])
 }
 
 model Chat {

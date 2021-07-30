@@ -8,7 +8,7 @@ export const CHAT_ROOM_UPDATED = 'CHAT_ROOM_UPDATED'
 
 // ChatScreen에 사용됨
 export const chatRoomUpdated = subscriptionField('chatRoomUpdated', {
-    type: 'Chat',
+    type: 'ChatRoom',
     args: {
         userId: nonNull(stringArg())
     },
@@ -28,7 +28,7 @@ export const chatRoomUpdated = subscriptionField('chatRoomUpdated', {
             return (chatRoom?.users || []).filter(v => v.id === user.id).length !== 0
         }
     ),
-    resolve: async (payload: Chat, { }, ctx) => {
+    resolve: async (payload: ChatRoom, { }, ctx) => {
         console.log('chatroom reslove')
         return payload
     }

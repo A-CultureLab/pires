@@ -7,6 +7,7 @@ export const ChatRoom = objectType({
         t.model.id()
         t.model.createdAt()
         t.model.updatedAt()
+        t.model.recentChatCreatedAt()
         t.model.users()
         t.model.chats()
         t.field('recentChat', {

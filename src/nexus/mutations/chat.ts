@@ -43,6 +43,11 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
             }
         })
 
+        await ctx.prisma.chatRoom.update({
+            where: { id: chat.chatRoomId },
+            data: { recentChatCreatedAt: chat.createdAt }
+        })
+
         ctx.pubsub.publish(CHAT_CREATED, chat)
         ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
 
