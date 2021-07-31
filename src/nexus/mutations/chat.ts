@@ -1,6 +1,7 @@
-import { inputObjectType, mutationField, nonNull } from "nexus";
-import getIUser from "../../utils/getIUser";
 import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../subscriptions";
+import { inputObjectType, mutationField, nonNull } from "nexus";
+
+import getIUser from "../../utils/getIUser";
 
 const CreateChatInput = inputObjectType({
     name: 'CreateChatInput',
@@ -18,7 +19,8 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
     },
     resolve: async (_, { input }, ctx) => {
 
-        const user = { id: 'KAKAO:1818675922' }
+        // const user = { id: 'KAKAO:1818675922' }
+        const user = await getIUser(ctx)
 
         const chatRoom = await ctx.prisma.chatRoom.findUnique({
             where: { id: input.chatRoomId },
@@ -34,7 +36,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
             data: {
                 chatRoom: { connect: { id: input.chatRoomId } },
                 message: input.message || undefined,
-                image: input.message || undefined,
+                image: input.image || undefined,
                 user: { connect: { id: user.id } },
                 notReadUsers: { connect: chatRoom.users.filter(v => v.id !== user.id).map(v => ({ id: v.id })) }
             },
