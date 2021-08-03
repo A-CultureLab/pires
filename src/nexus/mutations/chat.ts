@@ -2,6 +2,7 @@ import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../subscriptions";
 import { inputObjectType, mutationField, nonNull } from "nexus";
 
 import getIUser from "../../utils/getIUser";
+import { userMessaging } from "../../lib/firebase";
 
 const CreateChatInput = inputObjectType({
     name: 'CreateChatInput',
@@ -41,7 +42,11 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                 notReadUsers: { connect: chatRoom.users.filter(v => v.id !== user.id).map(v => ({ id: v.id })) }
             },
             include: {
-                chatRoom: true
+                chatRoom: {
+                    include: {
+                        users: true
+                    }
+                },
             }
         })
 
@@ -52,6 +57,23 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
 
         ctx.pubsub.publish(CHAT_CREATED, chat)
         ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
+
+        chat.chatRoom.users.filter(v => v.id !== user.id).forEach(v => {
+            console.log(v.fcmToken)
+            if (!v.fcmToken) return
+            userMessaging.send({
+                token: v.fcmToken,
+                data: {
+                    chatRoomId: chatRoom.id.toString(),
+                    type: 'chat',
+                },
+                notification: {
+                    title: user.name,
+                    body: input.message || '사진',
+                    imageUrl: user.image
+                },
+            })
+        })
 
 
         return chat

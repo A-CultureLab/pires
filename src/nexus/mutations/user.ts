@@ -97,6 +97,7 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
                 birth: new Date(),
                 email: v4(),
                 addressPostcode: '',
+                fcmToken: null
             }
         })
         // 파이어베이스 유저 삭제
