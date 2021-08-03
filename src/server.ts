@@ -11,12 +11,16 @@ import { createServer } from 'http'
 
 require('dotenv').config()
 
+const {
+  NODE_ENV
+
+} = process.env
 
 // express 설정
 const app = express()
 
 // 환경별 미들웨어
-if (process.env.NODE_ENV === 'production') {
+if (NODE_ENV === 'production') {
   app.use(morgan('combined')) //log 용
   app.use(hpp()) // 보안
   app.use(helmet()) // 보안
@@ -27,7 +31,10 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(expressErrorLogger)
-app.use((req, res, next) => setTimeout(() => next(), 1000)) // delay
+app.use((req, res, next) => {
+  if (NODE_ENV === 'production') return next()
+  else setTimeout(() => next(), 1000)
+}) // delay
 // routing
 
 app.get('/isRunning', (req, res) => res.send('Server is running')) // 서버 구동 확인용 router

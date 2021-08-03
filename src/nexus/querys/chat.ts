@@ -7,7 +7,7 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
     args: {
         chatRoomId: nonNull(intArg()),
         cursor: nullable(intArg()),
-        take: nullable(intArg({ default: 10 }))
+        take: nullable(intArg({ default: 20 }))
     },
     resolve: async (_, { cursor, chatRoomId, take }, ctx) => {
 
@@ -35,7 +35,7 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
             where: { chatRoomId },
             orderBy: { createdAt: 'desc' }
         })
-        
+
         return chats
     }
 }))

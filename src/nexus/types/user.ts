@@ -24,6 +24,21 @@ export const User = objectType({
         t.model.chatRooms()
         t.model.chats()
         t.model.notReadChats()
+        t.nonNull.int('notReadChatCount', {
+            resolve: async ({ id }, { }, ctx) => {
+                const user = await ctx.prisma.user.findUnique({
+                    where: { id },
+                    include: {
+                        _count: {
+                            select: {
+                                notReadChats: true
+                            }
+                        }
+                    }
+                })
+                return user?._count?.notReadChats || 0
+            }
+        })
         t.nonNull.int('age', {
             resolve: ({ birth }, { }, ctx) => {
                 const today = new Date()

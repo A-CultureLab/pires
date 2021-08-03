@@ -6,7 +6,7 @@ export const chatRooms = queryField(t => t.nonNull.list.nonNull.field('chatRooms
     type: 'ChatRoom',
     args: {
         cursor: nullable(intArg()),
-        take: nullable(intArg({ default: 10 }))
+        take: nullable(intArg({ default: 20 }))
     },
     resolve: async (_, { cursor, take }, ctx) => {
 
