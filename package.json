@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "ts-node-dev --tree-kill --no-notify --respawn --transpile-only src/server.ts",
     "studio": "prisma studio",
-    "build": "cross-env NODE_ENV=production npm -s run clean && tsc -b --force",
+    "build": "npm -s run clean && tsc -b --force",
     "build:silent": "cross-env NODE_ENV=production npm -s run clean && npm run generate:prisma && tsc-silent -p tsconfig.json --suppress @/src",
     "start": " cross-env NODE_ENV=production node dist/server",
     "pm2": "cross-env NODE_ENV=production pm2-runtime start pm2.json",
@@ -17,6 +17,7 @@
     "@google-cloud/logging-winston": "^4.1.0",
     "@google-cloud/storage": "^5.8.5",
     "@prisma/client": "2.23.0",
+    "apollo-log": "^1.0.2",
     "apollo-server-express": "^2.25.2",
     "axios": "^0.21.1",
     "cross-env": "^7.0.2",

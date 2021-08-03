@@ -8,6 +8,8 @@ import expressErrorLogger from './lib/expressErrorLogger'
 import apolloFormatError from './lib/apolloFormatError'
 import schema from './nexus'
 import { createServer } from 'http'
+import { ApolloLogPlugin } from 'apollo-log';
+
 
 require('dotenv').config()
 
@@ -21,11 +23,11 @@ const app = express()
 
 // 환경별 미들웨어
 if (NODE_ENV === 'production') {
-  app.use(morgan('combined')) //log 용
+  // app.use(morgan('combined')) //log 용
   app.use(hpp()) // 보안
   app.use(helmet()) // 보안
 } else {
-  app.use(morgan('dev')) //log 용
+  // app.use(morgan('dev')) //log 용
 }
 // 기타 미들웨어
 app.use(express.json())
@@ -47,6 +49,9 @@ const apolloServer = new ApolloServer({
   schema,
   context: createContext,
   formatError: apolloFormatError,
+  plugins: [
+    ApolloLogPlugin({})
+  ],
   subscriptions: {
     onConnect: async (connectionParams, _webSocket, _context) => {
       console.log('Connected to websocket')
