@@ -122,3 +122,20 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
         return updatedUser
     }
 }))
+
+export const updateFcmToken = mutationField(t => t.field('updateFcmToken', {
+    type: 'User',
+    args: {
+        token: nonNull(stringArg())
+    },
+    resolve: async (_, { token }, ctx) => {
+        const { id } = await getIUser(ctx)
+
+        const user = await ctx.prisma.user.update({
+            where: { id },
+            data: { fcmToken: token }
+        })
+
+        return user
+    }
+}))

@@ -5,8 +5,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm install
-RUN npm run build:silent
+RUN yarn
+RUN yarn build:silent
 
 
 
@@ -22,9 +22,9 @@ COPY pm2.json .
 COPY schema.prisma .
 # COPY .env .
 
-RUN npm install --production
-RUN npm run generate:prisma
+RUN yarn --production
+RUN yarn generate:prisma
 
 EXPOSE 8080
 
-CMD ["npm", "run", "pm2"]
+CMD ["yarn", "pm2"]

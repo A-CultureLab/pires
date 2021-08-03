@@ -17,6 +17,7 @@ export const User = objectType({
         t.model.marketingPushDate()
         t.model.marketingEmailDate()
         t.model.withdrawDate()
+        t.model.fcmToken()
         t.model.withdrawReason()
         t.model.addressPostcode()
         t.model.address()

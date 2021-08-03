@@ -53,6 +53,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
         ctx.pubsub.publish(CHAT_CREATED, chat)
         ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
 
+
         return chat
     }
 }))
