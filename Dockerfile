@@ -27,4 +27,4 @@ RUN yarn generate:prisma
 
 EXPOSE 8080
 
-CMD ["yarn", "pm2"]
+CMD ["yarn", "start"]
