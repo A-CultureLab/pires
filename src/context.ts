@@ -12,7 +12,8 @@ const {
 const redisOption: RedisOptions = {
     host: REDIS_HOSTNAME,
     port: 6379,
-    retryStrategy: attempt => Math.max(attempt * 100, 3000)
+    retryStrategy: attempt => Math.max(attempt * 100, 3000),
+
 }
 
 export const pubsub = NODE_ENV === 'production'
