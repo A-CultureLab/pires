@@ -12,6 +12,7 @@ const {
 const redisOption: RedisOptions = {
     host: REDIS_HOSTNAME,
     port: 6379,
+    tls: {}
 }
 
 export const pubsub = NODE_ENV === 'production'

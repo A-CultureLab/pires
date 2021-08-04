@@ -68,7 +68,7 @@ const apolloServer = new ApolloServer({
 apolloServer.applyMiddleware({
   app,
   path: '/graphql',
-  cors: { credentials: true, origin: process.env.NODE_ENV === 'production' ? 'https://38do.kr' : '*' }
+  cors: { credentials: true, origin: NODE_ENV === 'production' ? 'https://38do.kr' : '*' }
 })
 apolloServer.installSubscriptionHandlers(httpServer)
 
