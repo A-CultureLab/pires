@@ -9,6 +9,7 @@ const {
     NODE_ENV,
 } = process.env;
 
+
 const redisOption: RedisOptions = {
     host: REDIS_HOSTNAME,
     port: 6379,

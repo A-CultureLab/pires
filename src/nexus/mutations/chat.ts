@@ -55,13 +55,12 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
             data: { recentChatCreatedAt: chat.createdAt }
         })
 
-        await ctx.pubsub.publish(CHAT_CREATED, chat)
-        await ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
+        ctx.pubsub.publish(CHAT_CREATED, chat)
+        ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
 
-        chat.chatRoom.users.filter(v => v.id !== user.id).forEach(async (v) => {
-            console.log(v.fcmToken)
+        chat.chatRoom.users.filter(v => v.id !== user.id).forEach((v) => {
             if (!v.fcmToken) return
-            await userMessaging.send({
+            userMessaging.send({
                 token: v.fcmToken,
                 data: {
                     chatRoomId: chatRoom.id.toString(),
