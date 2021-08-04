@@ -20,7 +20,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
     },
     resolve: async (_, { input }, ctx) => {
 
-        // const user = { id: 'KAKAO:1818675922' }
+        // const user = { id: 'KAKAO:1818675922', name: 'hello', image: 'https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg' }
         const user = await getIUser(ctx)
 
         const chatRoom = await ctx.prisma.chatRoom.findUnique({
@@ -55,13 +55,13 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
             data: { recentChatCreatedAt: chat.createdAt }
         })
 
-        ctx.pubsub.publish(CHAT_CREATED, chat)
-        ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
+        await ctx.pubsub.publish(CHAT_CREATED, chat)
+        await ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
 
-        chat.chatRoom.users.filter(v => v.id !== user.id).forEach(v => {
+        chat.chatRoom.users.filter(v => v.id !== user.id).forEach(async (v) => {
             console.log(v.fcmToken)
             if (!v.fcmToken) return
-            userMessaging.send({
+            await userMessaging.send({
                 token: v.fcmToken,
                 data: {
                     chatRoomId: chatRoom.id.toString(),
