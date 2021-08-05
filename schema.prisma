@@ -38,9 +38,9 @@ model User {
   withdrawDate       DateTime? // 회원탈퇴 신철 일자
   withdrawReason     String?   @db.Text
 
-  addressPostcode String
+  addressPostcode String? // PK
 
-  address      Address    @relation(fields: [addressPostcode], references: [postcode])
+  address      Address?   @relation(fields: [addressPostcode], references: [postcode])
   pets         Pet[]
   chatRooms    ChatRoom[]
   chats        Chat[]
