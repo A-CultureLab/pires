@@ -92,6 +92,7 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
             data: {
                 id: 'deleted:' + v4(),
                 name: '탈퇴한 사용자',
+                image: 'https://static.thenounproject.com/png/574748-200.png',
                 withdrawDate: new Date(),
                 withdrawReason: reason,
                 birth: new Date(),
