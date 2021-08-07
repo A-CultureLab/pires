@@ -7,6 +7,7 @@ export const User = objectType({
         t.model.createdAt()
         t.model.updatedAt()
         t.model.email()
+        t.model.uniqueKey()
         t.model.name()
         t.model.image()
         t.model.gender()

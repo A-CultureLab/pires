@@ -8,10 +8,13 @@ export const SignupInput = inputObjectType({
     name: 'SignupInput',
     definition(t) {
         t.nonNull.string('email')
-        t.nonNull.string('name')
         t.nonNull.string('image')
+
+        t.nonNull.string('uniqueKey')
+        t.nonNull.string('name')
         t.nonNull.field('gender', { type: 'Gender' })
         t.nonNull.field('birth', { type: 'DateTime' })
+
         t.nonNull.string('addressPostcode')
         t.nullable.string('instagramId')
         t.nonNull.string('introduce')
