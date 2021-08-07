@@ -49,10 +49,7 @@ export const signup = mutationField(t => t.nonNull.field('signup', {
 export const UpdateUserInput = inputObjectType({
     name: 'UpdateUserInput',
     definition(t) {
-        t.nonNull.string('name')
         t.nonNull.string('image')
-        t.nonNull.field('gender', { type: 'Gender' })
-        t.nonNull.field('birth', { type: 'DateTime' })
         t.nonNull.string('addressPostcode')
         t.nullable.string('instagramId')
         t.nonNull.string('introduce')
