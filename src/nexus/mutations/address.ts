@@ -1,11 +1,12 @@
+import { floatArg, mutationField, nonNull } from "nexus"
+
 import axios from "axios"
-import { floatArg, mutationField, nonNull, objectType, queryField } from "nexus"
 import { config } from 'dotenv'
 
 config()
 
 // 좌표를 주소로 전환
-export const coordsToRegion = mutationField(t => t.nullable.field('coordsToRegion', {
+export const createAddress = mutationField(t => t.nullable.field('createAddress', {
     type: 'Address',
     args: {
         latitude: nonNull(floatArg()),
@@ -27,27 +28,66 @@ export const coordsToRegion = mutationField(t => t.nullable.field('coordsToRegio
         if (data.status.code !== 0) return null
 
         const land = data.results[0].land
-        const postcode = land.addition1.value
+        const area1 = data.results[0].region.area1
+        const area2 = data.results[0].region.area2
+        const area3 = data.results[0].region.area3
 
-        let newAddress = ''
+        // Address name generate
+        let addressName = ''
+        addressName += land.name
+        if (land.number1) addressName += ' ' + land.number1
+        if (land.number2) addressName += ' ' + land.number2
 
-        newAddress += land.name
-        if (land.number1) newAddress += ' ' + land.number1
-        if (land.number2) newAddress += ' ' + land.number2
-
-        const newData = {
-            addressName: newAddress,
-            buildingName: land.addition0.value,
-            latitude, // TODO postcode to latitude 찾아보자
-            longitude,
-            data
-        }
+        const buildingName = land.addition0.value
+        const landId = addressName + '@' + buildingName // ! Hash
 
 
-        const address =
-            await ctx.prisma.address.findUnique({ where: { postcode } }) // 이미 있다면
-                ? await ctx.prisma.address.update({ where: { postcode }, data: newData }) // 업데이트
-                : await ctx.prisma.address.create({ data: { ...newData, postcode } }) // 없다면 생성
+        const address = ctx.prisma.address.create({
+            data: {
+                area1: {
+                    connectOrCreate: {
+                        where: { id: area1.name },
+                        create: {
+                            id: area1.name,
+                            longitude: area1.coords.center.x,
+                            latitude: area1.coords.center.y
+                        }
+                    }
+                },
+                area2: {
+                    connectOrCreate: {
+                        where: { id: area2.name },
+                        create: {
+                            id: area2.name,
+                            longitude: area2.coords.center.x,
+                            latitude: area2.coords.center.y
+                        }
+                    }
+                },
+                area3: {
+                    connectOrCreate: {
+                        where: { id: area3.name },
+                        create: {
+                            id: area3.name,
+                            longitude: area3.coords.center.x,
+                            latitude: area3.coords.center.y
+                        }
+                    }
+                },
+                land: {
+                    connectOrCreate: {
+                        where: { id: landId },
+                        create: {
+                            id: landId,
+                            addressName,
+                            buildingName,
+                            latitude, // TODO 건물주소 to latitude 찾아보자
+                            longitude,
+                        }
+                    }
+                }
+            }
+        })
 
         return address
     }

@@ -20,7 +20,7 @@ export const User = objectType({
         t.model.withdrawDate()
         t.model.fcmToken()
         t.model.withdrawReason()
-        t.model.addressPostcode()
+        t.model.addressId()
         t.model.address()
         t.model.pets()
         t.model.chatRooms()

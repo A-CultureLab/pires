@@ -7,7 +7,7 @@
     "build:silent": "cross-env NODE_ENV=production npm -s run clean && npm run generate:prisma && tsc-silent -p tsconfig.json --suppress @/src",
     "start": " cross-env NODE_ENV=production node dist/server",
     "pm2": "cross-env NODE_ENV=production pm2-runtime start pm2.json",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf node_modules && rm -rf yarn.lock && rm -rf dist && rm -rf generated",
     "migrate": "prisma migrate dev",
     "generate": "npm -s run generate:prisma && npm run generate:nexus",
     "generate:prisma": "prisma generate",

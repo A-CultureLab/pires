@@ -1,4 +1,5 @@
-import { floatArg, inputObjectType, nonNull, objectType, queryField } from "nexus";
+import { inputObjectType, nonNull, objectType, queryField } from "nexus";
+
 import getIUser from "../../utils/getIUser";
 
 export const myPets = queryField(t => t.nonNull.list.nonNull.field('myPets', {
@@ -23,12 +24,20 @@ export const CameraRegionInput = inputObjectType({
     }
 })
 
+export const Region = objectType({
+    name: 'Region',
+    definition(t) {
+        t.nonNull.float('latitude')
+        t.nonNull.float('longitude')
+    }
+})
+
 export const PetGroupByAddress = objectType({
     name: 'PetGroupByAddress',
     definition(t) {
-        t.nonNull.list.nonNull.field('pets', { type: 'Pet' })
+        t.nonNull.list.nonNull.field('pets', { type: 'Pet' }) // 앞에서 2개
         t.nonNull.int('count')
-        t.nonNull.field('address', { type: 'Address' })
+        t.nonNull.field('region', { type: Region })
     }
 })
 
@@ -66,7 +75,7 @@ export const mapPets = queryField(t => t.nonNull.list.nonNull.field('mapPets', {
                         where: { user: { addressPostcode } }
                     })
                     const address: any = await ctx.prisma.address.findUnique({ // address는 존재할 수 밖에 없음
-                        where: { postcode: addressPostcode }
+                        where: { postcode: addressPostcode || undefined }
                     })
 
                     return {
@@ -78,6 +87,6 @@ export const mapPets = queryField(t => t.nonNull.list.nonNull.field('mapPets', {
             )
         )
 
-        return petGroupByAddress.filter(v => v.pets.length > 0)
+        return petGroupByAddress.filter(v => v.pets.length > 0) // 주소는 존재하지만 동물은 없는 경우를 필터링
     }
 }))

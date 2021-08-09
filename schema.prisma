@@ -40,31 +40,91 @@ model User {
   withdrawDate       DateTime? // 회원탈퇴 신철 일자
   withdrawReason     String?   @db.Text
 
-  addressPostcode String? // PK
+  addressId Int? // TODO plz nullable
 
-  address      Address?   @relation(fields: [addressPostcode], references: [postcode])
+  address      Address?   @relation(fields: [addressId], references: [id])
   pets         Pet[]
   chatRooms    ChatRoom[]
   chats        Chat[]
   notReadChats Chat[]     @relation("notReadChatsNotReadUsers")
 
 
-  @@index([birth, addressPostcode])
+
+
+  @@index([birth, gender])
 }
 
 model Address {
-  postcode  String   @id // 우편번호
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  addressName  String // 풀 주소
-  buildingName String // 건물 이름
-  latitude     Float
-  longitude    Float
-  data         Json // API 결과값 캐싱
+  // Areas
+  area1Id String
+  area2Id String
+  area3Id String
+  landId  String
 
-  users User[]
+  area1 Area1 @relation(fields: [area1Id], references: [id])
+  area2 Area2 @relation(fields: [area2Id], references: [id])
+  area3 Area3 @relation(fields: [area3Id], references: [id])
+  land  Land  @relation(fields: [landId], references: [id])
+  //
 
-  @@index([postcode, latitude, longitude])
+  user User?
+
+  @@index([area1Id, area2Id, area3Id, landId])
+}
+
+model Area1 {
+  // 도/시
+  id String @id
+
+  latitude  Float
+  longitude Float
+
+  addresses Address[]
+
+  @@index([id, latitude, longitude])
+}
+
+model Area2 {
+  // 시/군/구
+  id String @id
+
+  latitude  Float
+  longitude Float
+
+  addresses Address[]
+
+  @@index([id, latitude, longitude])
+}
+
+model Area3 {
+  // 읍/면/동
+  id String @id
+
+  latitude  Float
+  longitude Float
+
+  addresses Address[]
+
+  @@index([id, latitude, longitude])
+}
+
+model Land {
+  // 상세주소
+  id String @id // addressName + @ + buildingName
+
+  addressName  String // 세부주소 주소 예) 용구대로 112-3
+  buildingName String // 건물 이름 예) 용산빌딩
+
+  latitude  Float
+  longitude Float
+
+  addresses Address[]
+
+  @@index([id, latitude, longitude])
 }
 
 model Pet {

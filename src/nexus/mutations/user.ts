@@ -1,8 +1,9 @@
-import { mutationField, nonNull, inputObjectType, stringArg } from "nexus";
-import { userAuth } from "../../lib/firebase";
-import getIUser from "../../utils/getIUser";
-import { v4 } from 'uuid';
+import { inputObjectType, mutationField, nonNull, stringArg } from "nexus";
+
 import axios from "axios";
+import getIUser from "../../utils/getIUser";
+import { userAuth } from "../../lib/firebase";
+import { v4 } from 'uuid';
 
 export const SignupInput = inputObjectType({
     name: 'SignupInput',
@@ -15,7 +16,7 @@ export const SignupInput = inputObjectType({
         t.nonNull.field('gender', { type: 'Gender' })
         t.nonNull.field('birth', { type: 'DateTime' })
 
-        t.nonNull.string('addressPostcode')
+        t.nonNull.int('addressId')
         t.nullable.string('instagramId')
         t.nonNull.string('introduce')
         t.nonNull.field('agreementDate', { type: 'DateTime' })
@@ -39,8 +40,8 @@ export const signup = mutationField(t => t.nonNull.field('signup', {
             data: {
                 id,
                 ...data,
-                addressPostcode: undefined,
-                address: { connect: { postcode: data.addressPostcode } }
+                addressId: undefined,
+                address: { connect: { id: data.addressId } }
             }
         })
     }
@@ -50,7 +51,7 @@ export const UpdateUserInput = inputObjectType({
     name: 'UpdateUserInput',
     definition(t) {
         t.nonNull.string('image')
-        t.nonNull.string('addressPostcode')
+        t.nonNull.int('addressId')
         t.nullable.string('instagramId')
         t.nonNull.string('introduce')
     }
@@ -67,8 +68,8 @@ export const updateUser = mutationField(t => t.nonNull.field('updateUser', {
             where: { id: user.id },
             data: {
                 ...data,
-                addressPostcode: undefined,
-                address: data.addressPostcode ? { connect: { postcode: data.addressPostcode } } : undefined
+                addressId: undefined,
+                address: { connect: { id: data.addressId } }
             }
         })
     }
