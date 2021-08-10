@@ -40,9 +40,9 @@ model User {
   withdrawDate       DateTime? // 회원탈퇴 신철 일자
   withdrawReason     String?   @db.Text
 
-  addressId Int? // TODO plz nullable
+  addressId Int
 
-  address      Address?   @relation(fields: [addressId], references: [id])
+  address      Address    @relation(fields: [addressId], references: [id])
   pets         Pet[]
   chatRooms    ChatRoom[]
   chats        Chat[]

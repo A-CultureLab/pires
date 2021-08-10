@@ -1,4 +1,4 @@
-import { objectType } from "nexus";
+import { inputObjectType, objectType } from "nexus";
 
 export const Address = objectType({
     name: 'Address',
@@ -80,5 +80,23 @@ export const Land = objectType({
                 return addressName + ' ' + buildingName
             }
         })
+    }
+})
+
+export const CameraRegionInput = inputObjectType({
+    name: 'CameraRegionInput',
+    definition(t) {
+        t.nonNull.float('latitude')
+        t.nonNull.float('longitude')
+        t.nonNull.float('latitudeDelta')
+        t.nonNull.float('longitudeDelta')
+    }
+})
+
+export const Region = objectType({
+    name: 'Region',
+    definition(t) {
+        t.nonNull.float('latitude')
+        t.nonNull.float('longitude')
     }
 })
