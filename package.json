@@ -11,7 +11,8 @@
     "migrate": "prisma migrate dev",
     "generate": "npm -s run generate:prisma && npm run generate:nexus",
     "generate:prisma": "prisma generate",
-    "generate:nexus": "cross-env NODE_ENV=development ts-node --transpile-only src/nexus"
+    "generate:nexus": "cross-env NODE_ENV=development ts-node --transpile-only src/nexus",
+    "dummy:user":"ts-node src/dummy/createDummyUsers"
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^4.1.0",
@@ -24,6 +25,7 @@
     "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "faker": "^5.5.3",
     "firebase-admin": "^9.10.0",
     "graphql": "^15.5.1",
     "graphql-redis-subscriptions": "^2.4.0",
@@ -44,6 +46,7 @@
     "xss": "^1.0.9"
   },
   "devDependencies": {
+    "@types/faker": "^5.5.7",
     "@types/graphql": "^14.5.0",
     "@types/graphql-upload": "^8.0.4",
     "@types/hpp": "^0.2.1",

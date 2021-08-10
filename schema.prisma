@@ -114,7 +114,7 @@ model Area3 {
 
 model Land {
   // 상세주소
-  id String @id // addressName + @ + buildingName
+  id String @id // addressName + '@' + buildingName
 
   addressName  String // 세부주소 주소 예) 용구대로 112-3
   buildingName String // 건물 이름 예) 용산빌딩
