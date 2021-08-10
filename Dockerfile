@@ -17,9 +17,10 @@ WORKDIR /app
 COPY --from=builder app/dist ./dist
 COPY assets ./assets
 
-COPY package*.json ./
-COPY pm2.json .
+COPY package.json .
+COPY yarn.lock .
 COPY schema.prisma .
+# COPY pm2.json .
 # COPY .env .
 
 RUN yarn --production
