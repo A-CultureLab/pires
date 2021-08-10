@@ -12,7 +12,8 @@
     "generate": "npm -s run generate:prisma && npm run generate:nexus",
     "generate:prisma": "prisma generate",
     "generate:nexus": "cross-env NODE_ENV=development ts-node --transpile-only src/nexus",
-    "dummy:user":"ts-node src/dummy/createDummyUsers"
+    "dummy:user":"ts-node src/dummy/createDummyUsers",
+    "dummy:address":"ts-node src/dummy/createDummyAddresses"
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^4.1.0",

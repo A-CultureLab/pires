@@ -33,47 +33,61 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
     },
     resolve: async (_, { cameraRegion }, ctx) => {
 
-        const w = 10 // 가중치 deleta기반으로
+
+        const groupBy = (() => {
+            const delta = cameraRegion.latitudeDelta
+            console.log(delta)
+            if (delta > 0.5) return 'area1'
+            if (delta > 0.15) return 'area2'
+            if (delta > 0.02) return 'area3'
+            return 'land'
+        })()
+
+        type GroupById = 'area1Id' | 'area2Id' | 'area3Id' | 'landId'
+        const groupById: GroupById = groupBy + 'Id' as GroupById
+
 
         const addressGroupBy = await ctx.prisma.address.groupBy({
-            by: ['landId'],
+            by: [groupById],
             where: {
-                land: {
+                [groupBy]: {
                     AND: [
-                        { latitude: { gte: cameraRegion.latitude - w } },
-                        { latitude: { lte: cameraRegion.latitude + w } },
-                        { longitude: { gte: cameraRegion.longitude - w } },
-                        { longitude: { lte: cameraRegion.longitude + w } },
+                        { latitude: { gte: cameraRegion.latitude - cameraRegion.latitudeDelta / 2 } },
+                        { latitude: { lte: cameraRegion.latitude + cameraRegion.latitudeDelta / 2 } },
+                        { longitude: { gte: cameraRegion.longitude - cameraRegion.longitudeDelta / 2 } },
+                        { longitude: { lte: cameraRegion.longitude + cameraRegion.longitudeDelta / 2 } },
                     ],
                 }
             }
         })
 
+        console.log(addressGroupBy)
 
         const petGroupByAddress = await Promise.all(
-            addressGroupBy.map(({ landId }) =>
+            addressGroupBy.map((data) =>
                 (async () => {
+                    const id = data[groupById]
+
                     const pets = await ctx.prisma.pet.findMany({
-                        where: { user: { address: { landId } } },
+                        where: { user: { address: { [groupById]: id } } },
                         orderBy: { createdAt: 'desc' }, // 신규등록한
                         take: 2 // 두개만 
                     })
                     const count = await ctx.prisma.pet.count({
-                        where: { user: { address: { landId } } },
+                        where: { user: { address: { [groupById]: id } } },
                     })
 
-                    const land = await ctx.prisma.land.findUnique({
-                        where: { id: landId }
-                    })
+                    //@ts-ignore
+                    const area = await ctx.prisma[groupBy].findUnique({ where: { id } })
 
-                    const groupName = (land?.buildingName || land?.addressName) || ''
+                    const groupName = (area?.buildingName || area?.addressName) || id
                     const region = {
-                        latitude: land?.latitude || 0,
-                        longitude: land?.longitude || 0
+                        latitude: area?.latitude || 0,
+                        longitude: area?.longitude || 0
                     }
 
                     return {
-                        id: landId,
+                        id,
                         groupName,
                         count,
                         pets,
@@ -82,10 +96,9 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
                 })()
             )
         )
-
-
+        console.log(petGroupByAddress.length)
         return {
-            groupBy: 'land',
+            groupBy,
             petGroup: petGroupByAddress.filter(v => v.pets.length > 0) // 주소는 존재하지만 동물은 없는 경우를 필터링
         }
     }

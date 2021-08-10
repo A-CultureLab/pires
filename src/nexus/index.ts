@@ -37,10 +37,10 @@ const schema = makeSchema({
         paginationStrategy: 'prisma',
         scalars: {
             DateTime: DateTimeResolver,
-            Json: new GraphQLScalarType({
-                ...JSONObjectResolver,
-                name: 'Json',
-            })
+            // Json: new GraphQLScalarType({
+            //     ...JSONObjectResolver,
+            //     name: 'Json',
+            // })
         }
     })],
 })

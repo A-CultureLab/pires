@@ -76,8 +76,7 @@ export const Land = objectType({
 
         t.nonNull.string('fullName', {
             resolve: ({ addressName, buildingName }) => {
-                if (!buildingName) return addressName
-                return addressName + ' ' + buildingName
+                return buildingName || addressName
             }
         })
     }
