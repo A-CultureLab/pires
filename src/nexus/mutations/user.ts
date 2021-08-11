@@ -99,7 +99,6 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
                 birth: new Date(),
                 email: 'deleted:' + v4(),
                 uniqueKey: 'deleted:' + v4(),
-                address: { disconnect: true },
                 fcmToken: null
             }
         })
