@@ -39,7 +39,7 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
             console.log(delta)
             if (delta > 0.5) return 'area1'
             if (delta > 0.15) return 'area2'
-            if (delta > 0.02) return 'area3'
+            if (delta > 0.03) return 'area3'
             return 'land'
         })()
 
