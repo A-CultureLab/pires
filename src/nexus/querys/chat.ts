@@ -1,12 +1,12 @@
-import { intArg, nonNull, nullable, queryField } from "nexus";
+import { intArg, nonNull, nullable, queryField, stringArg } from "nexus";
 
 import getIUser from "../../utils/getIUser";
 
 export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
     type: 'Chat',
     args: {
-        chatRoomId: nonNull(intArg()),
-        cursor: nullable(intArg()),
+        chatRoomId: nonNull(stringArg()),
+        cursor: nullable(stringArg()),
         take: nullable(intArg({ default: 20 }))
     },
     resolve: async (_, { cursor, chatRoomId, take }, ctx) => {

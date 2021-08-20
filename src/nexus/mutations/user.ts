@@ -16,7 +16,7 @@ export const SignupInput = inputObjectType({
         t.nonNull.field('gender', { type: 'Gender' })
         t.nonNull.field('birth', { type: 'DateTime' })
 
-        t.nonNull.int('addressId')
+        t.nonNull.string('addressId')
         t.nullable.string('instagramId')
         t.nonNull.string('introduce')
         t.nonNull.field('agreementDate', { type: 'DateTime' })
@@ -51,7 +51,7 @@ export const UpdateUserInput = inputObjectType({
     name: 'UpdateUserInput',
     definition(t) {
         t.nonNull.string('image')
-        t.nonNull.int('addressId')
+        t.nonNull.string('addressId')
         t.nullable.string('instagramId')
         t.nonNull.string('introduce')
     }

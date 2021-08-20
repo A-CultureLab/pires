@@ -33,10 +33,10 @@ if (NODE_ENV === 'production') {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(expressErrorLogger)
-app.use((req, res, next) => { // delay
-  if (NODE_ENV === 'production') return next()
-  else setTimeout(() => next(), 500)
-})
+// app.use((req, res, next) => { // delay
+//   if (NODE_ENV === 'production') return next()
+//   else setTimeout(() => next(), 500)
+// })
 
 // Restapi routing
 app.get('/isRunning', (req, res) => res.send('Server is running')) // 서버 구동 확인용 router

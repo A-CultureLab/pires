@@ -1,4 +1,7 @@
 import { enumType, nonNull, objectType, queryField } from "nexus"
+import groupByAddressIdGenerator from "../../../utils/groupByAddressIdGenerator"
+import { AddressKeys } from "../../types"
+
 
 
 
@@ -43,8 +46,7 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
             return 'land'
         })()
 
-        type GroupById = 'area1Id' | 'area2Id' | 'area3Id' | 'landId'
-        const groupById: GroupById = groupBy + 'Id' as GroupById
+        const groupById: AddressKeys = groupBy + 'Id' as AddressKeys
 
 
         const addressGroupBy = await ctx.prisma.address.groupBy({
@@ -66,7 +68,7 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
         const petGroupByAddress = await Promise.all(
             addressGroupBy.map((data) =>
                 (async () => {
-                    const id = data[groupById]
+                    const id = groupByAddressIdGenerator.generate(groupById, data[groupById])
 
                     const pets = await ctx.prisma.pet.findMany({
                         where: { user: { address: { [groupById]: id } } },
@@ -96,7 +98,7 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
                 })()
             )
         )
-        console.log(petGroupByAddress.length)
+
         return {
             groupBy,
             petGroup: petGroupByAddress.filter(v => v.pets.length > 0) // 주소는 존재하지만 동물은 없는 경우를 필터링

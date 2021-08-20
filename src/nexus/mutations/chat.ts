@@ -7,7 +7,7 @@ import { userMessaging } from "../../lib/firebase";
 const CreateChatInput = inputObjectType({
     name: 'CreateChatInput',
     definition(t) {
-        t.nonNull.int('chatRoomId')
+        t.nonNull.string('chatRoomId')
         t.nullable.string('message')
         t.nullable.string('image')
     }

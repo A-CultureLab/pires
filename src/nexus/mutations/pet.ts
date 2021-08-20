@@ -46,7 +46,7 @@ export const registPet = mutationField(t => t.field('registPet', {
 export const updatePet = mutationField(t => t.field('updatePet', {
     type: 'Pet',
     args: {
-        id: nonNull(intArg()),
+        id: nonNull(stringArg()),
         data: nonNull(RegistPetInput)
     },
     resolve: async (_, { data, id }, ctx) => {
@@ -60,7 +60,7 @@ export const updatePet = mutationField(t => t.field('updatePet', {
 export const deletePet = mutationField(t => t.field('deletePet', {
     type: 'Pet',
     args: {
-        id: nonNull(intArg())
+        id: nonNull(stringArg())
     },
     resolve: async (_, { id }, ctx) => {
         return ctx.prisma.pet.delete({
@@ -72,7 +72,7 @@ export const deletePet = mutationField(t => t.field('deletePet', {
 export const sortPets = mutationField(t => t.nonNull.list.nonNull.field('sortPets', {
     type: 'Pet',
     args: {
-        data: nonNull(list(nonNull(intArg())))
+        data: nonNull(list(nonNull(stringArg())))
     },
     resolve: async (_, { data }, ctx) => {
         const pets = await Promise.all(data.map((v, i) => ctx.prisma.pet.update({

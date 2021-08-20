@@ -99,3 +99,5 @@ export const Region = objectType({
         t.nonNull.float('longitude')
     }
 })
+
+export type AddressKeys = 'area1Id' | 'area2Id' | 'area3Id' | 'landId'

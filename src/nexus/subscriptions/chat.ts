@@ -1,6 +1,6 @@
 import { Chat } from "@prisma/client";
 import { withFilter } from "apollo-server-express";
-import { intArg, nonNull, stringArg, subscriptionField } from "nexus";
+import { nonNull, stringArg, subscriptionField } from "nexus";
 import { Context } from "../../context";
 import getIUser from "../../utils/getIUser";
 
@@ -11,7 +11,7 @@ export const chatCreated = subscriptionField('chatCreated', {
     type: 'Chat',
     args: {
         userId: nonNull(stringArg()),
-        chatRoomId: nonNull(intArg())
+        chatRoomId: nonNull(stringArg())
     },
     subscribe: withFilter(
         (_, { }, ctx: Context) => ctx.pubsub.asyncIterator(CHAT_CREATED),

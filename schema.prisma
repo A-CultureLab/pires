@@ -40,7 +40,7 @@ model User {
   withdrawDate       DateTime? // 회원탈퇴 신철 일자
   withdrawReason     String?   @db.Text
 
-  addressId Int
+  addressId String
 
   address      Address    @relation(fields: [addressId], references: [id])
   pets         Pet[]
@@ -55,7 +55,7 @@ model User {
 }
 
 model Address {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -128,7 +128,7 @@ model Land {
 }
 
 model Pet {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orderKey  Int // 어레이 정렬 키
@@ -152,7 +152,7 @@ model Pet {
 }
 
 model ChatRoom {
-  id                  Int       @id @default(autoincrement())
+  id                  String    @id @default(cuid())
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   recentChatCreatedAt DateTime?
@@ -164,7 +164,7 @@ model ChatRoom {
 }
 
 model Chat {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -176,7 +176,7 @@ model Chat {
   notReadUsers User[]   @relation("notReadChatsNotReadUsers")
 
   userId     String
-  chatRoomId Int
+  chatRoomId String
 
   @@index([createdAt, userId, chatRoomId])
 }
