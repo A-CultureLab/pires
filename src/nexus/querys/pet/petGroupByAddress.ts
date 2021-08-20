@@ -68,28 +68,29 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
         const petGroupByAddress = await Promise.all(
             addressGroupBy.map((data) =>
                 (async () => {
-                    const id = groupByAddressIdGenerator.generate(groupById, data[groupById])
+                    const addressId = data[groupById]
+                    const groupByAddressId = groupByAddressIdGenerator.generate(groupById, addressId)
 
                     const pets = await ctx.prisma.pet.findMany({
-                        where: { user: { address: { [groupById]: id } } },
+                        where: { user: { address: { [groupById]: addressId } } },
                         orderBy: { createdAt: 'desc' }, // 신규등록한
                         take: 2 // 두개만 
                     })
                     const count = await ctx.prisma.pet.count({
-                        where: { user: { address: { [groupById]: id } } },
+                        where: { user: { address: { [groupById]: addressId } } },
                     })
 
                     //@ts-ignore
-                    const area = await ctx.prisma[groupBy].findUnique({ where: { id } })
+                    const area = await ctx.prisma[groupBy].findUnique({ where: { id: addressId } })
 
-                    const groupName = (area?.buildingName || area?.addressName) || id
+                    const groupName = (area?.buildingName || area?.addressName) || addressId
                     const region = {
                         latitude: area?.latitude || 0,
                         longitude: area?.longitude || 0
                     }
 
                     return {
-                        id,
+                        id: groupByAddressId,
                         groupName,
                         count,
                         pets,

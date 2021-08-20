@@ -1,5 +1,5 @@
 import axios from "axios"
-import { floatArg, nonNull, objectType, queryField, stringArg } from "nexus"
+import { intArg, nonNull, nullable, queryField, stringArg } from "nexus"
 import { userAuth } from "../../lib/firebase"
 import getIUser from "../../utils/getIUser"
 import groupByAddressIdGenerator from "../../utils/groupByAddressIdGenerator"
@@ -59,23 +59,27 @@ export const kakaoTokenToFirebaseToken = queryField(t => t.nonNull.field('kakaoT
     }
 }))
 
-export const usersByAddress = queryField(t => t.nonNull.list.nonNull.field('usersByAddress', {
+export const userGroupByAddress = queryField(t => t.nonNull.list.nonNull.field('userGroupByAddress', {
     type: 'User',
     args: {
         groupByAddress: nonNull(stringArg()),
-        pagination: nonNull('SkipTakePagination')
+        take: nullable(intArg({ default: 10 })),
+        skip: nullable(intArg({ default: 0 }))
     },
-    resolve: async (_, { groupByAddress, pagination }, ctx) => {
+    resolve: async (_, { groupByAddress, take, skip }, ctx) => {
         const { addressKey, addressId } = groupByAddressIdGenerator.parse(groupByAddress)
 
         const users = await ctx.prisma.user.findMany({
             where: {
-                [addressKey]: addressId,
+                address: {
+                    [addressKey]: addressId,
+                }
             },
             orderBy: {
-                createdAt: 'desc'
+                createdAt: 'desc',
             },
-            ...pagination
+            take: take || 0,
+            skip: skip || 0
         })
 
         return users
