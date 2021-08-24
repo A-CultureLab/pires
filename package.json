@@ -12,8 +12,8 @@
     "generate": "npm -s run generate:prisma && npm run generate:nexus",
     "generate:prisma": "prisma generate",
     "generate:nexus": "cross-env NODE_ENV=development ts-node --transpile-only src/nexus",
-    "dummy:user":"ts-node src/dummy/createDummyUsers",
-    "dummy:address":"ts-node src/dummy/createDummyAddresses"
+    "dummy:user": "ts-node src/dummy/createDummyUsers",
+    "dummy:address": "ts-node src/dummy/createDummyAddresses"
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^4.1.0",
@@ -22,12 +22,13 @@
     "apollo-log": "^1.0.2",
     "apollo-server-express": "^2.25.2",
     "axios": "^0.21.1",
-    "cross-env": "^7.0.2",
+    "cross-env": "^7.0.3",
     "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "faker": "^5.5.3",
     "firebase-admin": "^9.10.0",
+    "fs-capacitor": "^7.0.1",
     "graphql": "^15.5.1",
     "graphql-redis-subscriptions": "^2.4.0",
     "graphql-scalars": "^1.10.0",
@@ -64,5 +65,9 @@
     "tsc-silent": "^1.2.1",
     "typescript": "^4.3.5",
     "yargs": "^15.4.1"
+  },
+  "resolutions": {
+    "fs-capacitor": "^6.2.0",
+    "graphql-upload": "^12.0.0"
   }
 }
