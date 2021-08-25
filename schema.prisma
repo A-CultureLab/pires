@@ -168,8 +168,9 @@ model Chat {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  message String?
-  image   String?
+  message   String?
+  image     String?
+  isDeleted Boolean @default(false)
 
   user         User     @relation(fields: [userId], references: [id])
   chatRoom     ChatRoom @relation(fields: [chatRoomId], references: [id])

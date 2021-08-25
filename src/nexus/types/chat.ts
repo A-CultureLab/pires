@@ -8,6 +8,7 @@ export const Chat = objectType({
         t.model.updatedAt()
         t.model.message()
         t.model.image()
+        t.model.isDeleted()
         t.model.user()
         t.model.chatRoom()
         t.model.notReadUsers()
