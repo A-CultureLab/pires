@@ -64,12 +64,14 @@ export const updateUser = mutationField(t => t.nonNull.field('updateUser', {
     },
     resolve: async (_, { data }, ctx) => {
         const user = await getIUser(ctx)
+
+
         return ctx.prisma.user.update({
             where: { id: user.id },
             data: {
                 ...data,
                 addressId: undefined,
-                address: { connect: { id: data.addressId } }
+                address: user.addressId !== data.addressId ? { connect: { id: data.addressId } } : undefined // 이미 연결이 되있다면 유지
             }
         })
     }

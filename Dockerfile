@@ -1,5 +1,5 @@
 # BUILDER
-FROM node:12 AS builder
+FROM node:14 AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ RUN yarn build:silent
 
 
 # RUNNER
-FROM node:12
+FROM node:14
 WORKDIR /app
 
 COPY --from=builder app/dist ./dist
