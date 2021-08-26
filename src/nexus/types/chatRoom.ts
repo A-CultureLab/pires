@@ -8,8 +8,11 @@ export const ChatRoom = objectType({
         t.model.createdAt()
         t.model.updatedAt()
         t.model.recentChatCreatedAt()
+        t.model.type()
         t.model.users()
         t.model.chats()
+        t.model.notificatedUsers()
+        t.model.bookmarkedUsers()
         t.field('recentChat', {
             type: 'Chat',
             resolve: async ({ id }, { }, ctx) => {
@@ -37,6 +40,20 @@ export const ChatRoom = objectType({
                     where: { chatRooms: { some: { id } } }
                 })
                 return users.filter(v => v.id !== user?.id).map(v => v.name).join(', ')
+            }
+        })
+        t.nonNull.boolean('isNotificationOn', {
+            resolve: async ({ id }, { }, ctx) => {
+                const user = await getIUser(ctx)
+                const chatRoom = await ctx.prisma.chatRoom.findUnique({
+                    where: { id },
+                    include: {
+                        notificatedUsers: { where: { id: user.id } }
+                    }
+                })
+                if (!chatRoom) throw new Error
+                console.log('notification : ', chatRoom.notificatedUsers.length === 1)
+                return chatRoom.notificatedUsers.length === 1
             }
         })
     }

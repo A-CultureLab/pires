@@ -42,14 +42,15 @@ model User {
 
   addressId String
 
-  address      Address    @relation(fields: [addressId], references: [id])
-  pets         Pet[]
-  chatRooms    ChatRoom[]
-  chats        Chat[]
-  notReadChats Chat[]     @relation("notReadChatsNotReadUsers")
-
-
-
+  address              Address    @relation(fields: [addressId], references: [id])
+  pets                 Pet[]
+  chatRooms            ChatRoom[]
+  chats                Chat[]
+  notReadChats         Chat[]     @relation("notReadChatsNotReadUsers")
+  notificatedChatRooms ChatRoom[] @relation("notificatedUsersNotificatedChatRooms")
+  bookmarkedChatRoom   ChatRoom[] @relation("bookmarkedUsersBookmarkedChatRooms")
+  iBlockedUsers        User[]     @relation("iBlockedUsersBlockMeUsers")
+  blockMeUsers         User[]     @relation("iBlockedUsersBlockMeUsers")
 
   @@index([birth, gender])
 }
@@ -152,13 +153,17 @@ model Pet {
 }
 
 model ChatRoom {
-  id                  String    @id @default(cuid())
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                  String       @id @default(cuid())
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
   recentChatCreatedAt DateTime?
+  type                ChatRoomType
 
-  users User[]
-  chats Chat[]
+
+  chats            Chat[]
+  users            User[]
+  notificatedUsers User[] @relation("notificatedUsersNotificatedChatRooms")
+  bookmarkedUsers  User[] @relation("bookmarkedUsersBookmarkedChatRooms")
 
   @@index([recentChatCreatedAt])
 }
@@ -190,4 +195,10 @@ enum Gender {
 enum PetType {
   cat
   dog
+}
+
+enum ChatRoomType {
+  private // 1대1 채팅
+  group //   그룹채팅
+  // public // 오픈채팅
 }

@@ -26,6 +26,10 @@ export const User = objectType({
         t.model.chatRooms()
         t.model.chats()
         t.model.notReadChats()
+        t.model.notificatedChatRooms()
+        t.model.bookmarkedChatRoom()
+        t.model.iBlockedUsers()
+        t.model.blockMeUsers()
         t.nonNull.int('notReadChatCount', {
             resolve: async ({ id }, { }, ctx) => {
                 const user = await ctx.prisma.user.findUnique({
