@@ -53,12 +53,12 @@ model User {
 }
 
 model UserChatRoomInfo {
-  id String @id @default(cuid())
+  id String @id
 
   updatedAt DateTime @updatedAt
 
   joinedAt DateTime  @default(now())
-  exitedAt DateTime? // UI 상에 나가기한 private 채팅방을 안보여주기 위한 Field. private 채팅인 경우 createChat 과정에서 발신자와 수신자 모두의 exitedAt = null 로 업데이트됨
+  exitedAt DateTime? // UI 상에 나가기한 private 채팅방을 안보여주기 위한 Field. private 채팅인 경우 createChat 과정에서 발신자와 수신자 모두의 exitedAt = null 로 업데이트됨, 기본값 > private = Date group = null
 
   bookmarked  Boolean @default(false)
   notificated Boolean @default(true)

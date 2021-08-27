@@ -3,6 +3,7 @@ import { withFilter } from "apollo-server-express";
 import { nonNull, stringArg, subscriptionField } from "nexus";
 import { Context } from "../../context";
 import getIUser from "../../utils/getIUser";
+import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator";
 
 export const CHAT_CREATED = 'CHAT_CREATED'
 
@@ -38,19 +39,20 @@ export const chatCreated = subscriptionField('chatCreated', {
         const notReadChats = await ctx.prisma.chat.findMany({
             where: {
                 chatRoomId: payload.chatRoomId,
-                notReadUsers: { some: { id: user.id } }
+                notReadUserChatRoomInfos: { some: { userId: user.id } }
             },
             select: {
                 id: true
             }
         })
 
-        await ctx.prisma.user.update({
-            where: { id: user.id },
+        await ctx.prisma.userChatRoomInfo.update({
+            where: { id: userChatRoomInfoIdGenerator.generate(payload.chatRoomId, user.id) },
             data: {
                 notReadChats: { disconnect: notReadChats }
             }
         })
+
 
         return payload
     }

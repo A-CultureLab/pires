@@ -13,7 +13,8 @@
     "generate:prisma": "prisma generate",
     "generate:nexus": "cross-env NODE_ENV=development ts-node --transpile-only src/nexus",
     "dummy:user": "ts-node src/dummy/createDummyUsers",
-    "dummy:address": "ts-node src/dummy/createDummyAddresses"
+    "dummy:address": "ts-node src/dummy/createDummyAddresses",
+    "dummy:chatRoom": "ts-node src/dummy/createDummyChatRoom"
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^4.1.0",

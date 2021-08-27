@@ -11,7 +11,6 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
         take: nullable(intArg({ default: 20 }))
     },
     resolve: async (_, { cursor, chatRoomId, take }, ctx) => {
-
         const user = await getIUser(ctx)
 
         const notReadChats = await ctx.prisma.chat.findMany({
@@ -23,18 +22,12 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
         })
 
         // 안읽음 메시지 삭제
-        await ctx.prisma.userChatRoomInfo.update({
+        const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.update({
             where: { id: userChatRoomInfoIdGenerator.generate(chatRoomId, user.id) },
             data: {
                 notReadChats: { disconnect: notReadChats }
             }
         })
-
-        const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({
-            where: { id: userChatRoomInfoIdGenerator.generate(chatRoomId, user.id) }
-        })
-
-        if (!userChatRoomInfo) throw new Error('No Permission')
 
         const chats = await ctx.prisma.chat.findMany({
             cursor: cursor ? { id: cursor } : undefined,
