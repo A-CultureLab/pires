@@ -42,17 +42,68 @@ model User {
 
   addressId String
 
-  address              Address    @relation(fields: [addressId], references: [id])
-  pets                 Pet[]
-  chatRooms            ChatRoom[]
-  chats                Chat[]
-  notReadChats         Chat[]     @relation("notReadChatsNotReadUsers")
-  notificatedChatRooms ChatRoom[] @relation("notificatedUsersNotificatedChatRooms")
-  bookmarkedChatRoom   ChatRoom[] @relation("bookmarkedUsersBookmarkedChatRooms")
-  iBlockedUsers        User[]     @relation("iBlockedUsersBlockMeUsers")
-  blockMeUsers         User[]     @relation("iBlockedUsersBlockMeUsers")
+  address           Address            @relation(fields: [addressId], references: [id])
+  pets              Pet[]
+  userChatRoomInfos UserChatRoomInfo[]
+  chats             Chat[]
+  iBlockedUsers     User[]             @relation("iBlockedUsersBlockMeUsers")
+  blockMeUsers      User[]             @relation("iBlockedUsersBlockMeUsers")
 
   @@index([birth, gender])
+}
+
+model UserChatRoomInfo {
+  id String @id @default(cuid())
+
+  updatedAt DateTime @updatedAt
+
+  joinedAt DateTime  @default(now())
+  exitedAt DateTime? // UI 상에 나가기한 private 채팅방을 안보여주기 위한 Field. private 채팅인 경우 createChat 과정에서 발신자와 수신자 모두의 exitedAt = null 로 업데이트됨
+
+  bookmarked  Boolean @default(false)
+  notificated Boolean @default(true)
+
+  userId     String
+  chatRoomId String
+
+  user         User     @relation(fields: [userId], references: [id])
+  chatRoom     ChatRoom @relation(fields: [chatRoomId], references: [id])
+  notReadChats Chat[]   @relation("notReadChatsNotReadUserChatRoomInfos")
+
+  @@index([bookmarked, notificated, joinedAt])
+}
+
+model ChatRoom {
+  id                  String       @id @default(cuid())
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  recentChatCreatedAt DateTime?
+  type                ChatRoomType
+
+
+  chats             Chat[]
+  userChatRoomInfos UserChatRoomInfo[]
+
+  @@index([recentChatCreatedAt])
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  message   String?
+  image     String?
+  isDeleted Boolean @default(false)
+
+  user                     User               @relation(fields: [userId], references: [id])
+  chatRoom                 ChatRoom           @relation(fields: [chatRoomId], references: [id])
+  notReadUserChatRoomInfos UserChatRoomInfo[] @relation("notReadChatsNotReadUserChatRoomInfos")
+
+  userId     String
+  chatRoomId String
+
+  @@index([createdAt, userId, chatRoomId])
 }
 
 model Address {
@@ -150,41 +201,6 @@ model Pet {
   userId String
 
   @@index([species, character, birth, weight])
-}
-
-model ChatRoom {
-  id                  String       @id @default(cuid())
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
-  recentChatCreatedAt DateTime?
-  type                ChatRoomType
-
-
-  chats            Chat[]
-  users            User[]
-  notificatedUsers User[] @relation("notificatedUsersNotificatedChatRooms")
-  bookmarkedUsers  User[] @relation("bookmarkedUsersBookmarkedChatRooms")
-
-  @@index([recentChatCreatedAt])
-}
-
-model Chat {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  message   String?
-  image     String?
-  isDeleted Boolean @default(false)
-
-  user         User     @relation(fields: [userId], references: [id])
-  chatRoom     ChatRoom @relation(fields: [chatRoomId], references: [id])
-  notReadUsers User[]   @relation("notReadChatsNotReadUsers")
-
-  userId     String
-  chatRoomId String
-
-  @@index([createdAt, userId, chatRoomId])
 }
 
 enum Gender {

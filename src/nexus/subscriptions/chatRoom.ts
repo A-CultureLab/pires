@@ -22,10 +22,10 @@ export const chatRoomUpdated = subscriptionField('chatRoomUpdated', {
 
             const chatRoom = await ctx.prisma.chatRoom.findUnique({
                 where: { id: payload.id },
-                include: { users: true }
+                include: { userChatRoomInfos: { include: { user: true } } }
             })
 
-            return (chatRoom?.users || []).filter(v => v.id === user.id).length !== 0
+            return (chatRoom?.userChatRoomInfos.map(v => v.user) || []).filter(v => v.id === user.id).length !== 0
         }
     ),
     resolve: async (payload: ChatRoom, { }, ctx) => {

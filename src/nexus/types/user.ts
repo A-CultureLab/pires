@@ -23,26 +23,17 @@ export const User = objectType({
         t.model.addressId()
         t.model.address()
         t.model.pets()
-        t.model.chatRooms()
         t.model.chats()
-        t.model.notReadChats()
-        t.model.notificatedChatRooms()
-        t.model.bookmarkedChatRoom()
+        t.model.userChatRoomInfos()
         t.model.iBlockedUsers()
         t.model.blockMeUsers()
         t.nonNull.int('notReadChatCount', {
             resolve: async ({ id }, { }, ctx) => {
-                const user = await ctx.prisma.user.findUnique({
-                    where: { id },
-                    include: {
-                        _count: {
-                            select: {
-                                notReadChats: true
-                            }
-                        }
+                return await ctx.prisma.chat.count({
+                    where: {
+                        notReadUserChatRoomInfos: { some: { userId: id } }
                     }
                 })
-                return user?._count?.notReadChats || 0
             }
         })
         t.nonNull.int('age', {

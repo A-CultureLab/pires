@@ -14,7 +14,12 @@ export const chatRooms = queryField(t => t.nonNull.list.nonNull.field('chatRooms
 
         const chatRooms = await ctx.prisma.chatRoom.findMany({
             where: {
-                users: { some: { id: user.id } }
+                userChatRoomInfos: {
+                    some: {
+                        userId: user.id,
+                        exitedAt: null // 나가기 하지 않은 챗룸만 private 채팅에서만 유의미함
+                    }
+                },
             },
             take: take || undefined,
             cursor: cursor ? { id: cursor } : undefined,

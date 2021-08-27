@@ -20,18 +20,21 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
     },
     resolve: async (_, { input }, ctx) => {
 
-        // const user = { id: 'KAKAO:1818675922', name: 'hello', image: 'https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg' }
         const user = await getIUser(ctx)
 
         const chatRoom = await ctx.prisma.chatRoom.findUnique({
             where: { id: input.chatRoomId },
             include: {
-                users: true,
+                userChatRoomInfos: { include: { user: true } }
             }
         })
+        if (!chatRoom) throw new Error('No ChatRoom')
 
-        if (!chatRoom?.users.find(v => v.id !== user.id)) throw new Error('no Permission')
+        const chatRoomUsers = chatRoom.userChatRoomInfos.map(v => v.user)
+        const userChatRoomInfos = chatRoom.userChatRoomInfos
 
+        // 해당 채팅방에 있는지 확인
+        if (!chatRoomUsers.find(v => v.id !== user.id)) throw new Error('no Permission')
 
         const chat = await ctx.prisma.chat.create({
             data: {
@@ -39,15 +42,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                 message: input.message || undefined,
                 image: input.image || undefined,
                 user: { connect: { id: user.id } },
-                notReadUsers: { connect: chatRoom.users.filter(v => v.id !== user.id).map(v => ({ id: v.id })) }
-            },
-            include: {
-                chatRoom: {
-                    include: {
-                        notificatedUsers: true,
-                        users: true
-                    }
-                },
+                notReadUserChatRoomInfos: { connect: userChatRoomInfos.filter(v => v.userId !== user.id).map(v => ({ id: v.id })) }
             }
         })
 
@@ -55,22 +50,31 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
             where: { id: chat.chatRoomId },
             data: { recentChatCreatedAt: chat.createdAt }
         })
+        // private 채팅시 기존에 나갔더라도 다시 UI상에 보여주기위해 exitedAt을 null로 초기화함
+        if (chatRoom.type === 'private') {
+            await ctx.prisma.userChatRoomInfo.updateMany({
+                where: { chatRoomId: chatRoom.id },
+                data: { exitedAt: null }
+            })
+        }
+
 
         ctx.pubsub.publish(CHAT_CREATED, chat)
         ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
 
-        const notificationOnUsers = chat.chatRoom.notificatedUsers
-            .filter(v => v.id !== user.id) // 발신자 제외
-            .filter(v => !!v.fcmToken) // fcmToken 없는 유저 제외
-        const notificationOffUsers = chat.chatRoom.users
-            .filter(v => !notificationOnUsers.find((u) => v.id === u.id)) // 알림 ON인 유저 제외
-            .filter(v => v.id !== user.id) // 발신자 제외
-            .filter(v => !!v.fcmToken) // FCMToken 없는 유저 제외
+        const notificationOnUsers = userChatRoomInfos
+            .filter(v => v.notificated) // notificated true 상태인 유저로 필터링
+            .filter(v => v.userId !== user.id) // 발신자 제외
+            .filter(v => !!v.user.fcmToken) // fcmToken 없는 유저 제외
+        const notificationOffUsers = userChatRoomInfos
+            .filter(v => !v.notificated) // notificated false 상태인 유저로 필터링
+            .filter(v => v.userId !== user.id) // 발신자 제외
+            .filter(v => !!v.user.fcmToken) // fcmToken 없는 유저 제외
 
         try {
             // Notification On Users // 유음으로 보냄
             await userMessaging.sendMulticast({
-                tokens: notificationOnUsers.map(v => v.fcmToken || ''),
+                tokens: notificationOnUsers.map(v => v.user.fcmToken || ''),
                 data: {
                     chatRoomId: chatRoom.id.toString(),
                     type: 'chat',
@@ -83,7 +87,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
             })
             // Notification Off Users // 무음 메시지
             await userMessaging.sendMulticast({
-                tokens: notificationOffUsers.map(v => v.fcmToken || ''),
+                tokens: notificationOffUsers.map(v => v.user.fcmToken || ''),
                 data: {
                     chatRoomId: chatRoom.id.toString(),
                     type: 'chat',

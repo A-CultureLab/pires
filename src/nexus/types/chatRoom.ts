@@ -9,10 +9,8 @@ export const ChatRoom = objectType({
         t.model.updatedAt()
         t.model.recentChatCreatedAt()
         t.model.type()
-        t.model.users()
         t.model.chats()
-        t.model.notificatedUsers()
-        t.model.bookmarkedUsers()
+        t.model.userChatRoomInfos()
         t.field('recentChat', {
             type: 'Chat',
             resolve: async ({ id }, { }, ctx) => {
@@ -22,50 +20,29 @@ export const ChatRoom = objectType({
                 })
             }
         })
-        t.nonNull.int('notReadChatCount', {
-            resolve: async ({ id }, { }, ctx) => {
-                const user = await getIUser(ctx)
-                return ctx.prisma.chat.count({
-                    where: {
-                        chatRoomId: id,
-                        notReadUsers: { some: { id: user.id } }
-                    }
-                })
-            }
-        })
         t.nonNull.string('name', {
             resolve: async ({ id }, { }, ctx) => {
                 const user = await getIUser(ctx, true)
                 const users = await ctx.prisma.user.findMany({
-                    where: { chatRooms: { some: { id } } }
+                    where: { userChatRoomInfos: { some: { chatRoomId: id } } }
                 })
                 return users.filter(v => v.id !== user?.id).map(v => v.name).join(', ')
             }
         })
-        t.nonNull.boolean('isNotificationOn', {
+        t.nonNull.field('iUserChatRoomInfo', {
+            type: 'UserChatRoomInfo',
             resolve: async ({ id }, { }, ctx) => {
                 const user = await getIUser(ctx)
-                const chatRoom = await ctx.prisma.chatRoom.findUnique({
-                    where: { id },
-                    include: {
-                        notificatedUsers: { where: { id: user.id } }
+                const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.findFirst({
+                    where: {
+                        userId: user.id,
+                        chatRoomId: id
                     }
                 })
-                if (!chatRoom) throw new Error
-                return chatRoom.notificatedUsers.length === 1
-            }
-        })
-        t.nonNull.boolean('isBookmarked', {
-            resolve: async ({ id }, { }, ctx) => {
-                const user = await getIUser(ctx)
-                const chatRoom = await ctx.prisma.chatRoom.findUnique({
-                    where: { id },
-                    include: {
-                        bookmarkedUsers: { where: { id: user.id } }
-                    }
-                })
-                if (!chatRoom) throw new Error
-                return chatRoom.bookmarkedUsers.length === 1
+
+                if (!userChatRoomInfo) throw new Error
+
+                return userChatRoomInfo
             }
         })
     }

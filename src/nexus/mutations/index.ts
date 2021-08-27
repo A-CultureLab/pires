@@ -1,6 +1,7 @@
 export * from './user'
 export * from './pet'
-export * from './chatRoom'
+// export * from './chatRoom'
 export * from './chat'
 export * from './util'
 export * from './address'
+export * from './userChatRoomInfo'

@@ -11,7 +11,7 @@ export const Chat = objectType({
         t.model.isDeleted()
         t.model.user()
         t.model.chatRoom()
-        t.model.notReadUsers()
+        t.model.notReadUserChatRoomInfos()
         t.model.userId()
         t.model.chatRoomId()
     }
