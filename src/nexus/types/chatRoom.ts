@@ -55,5 +55,18 @@ export const ChatRoom = objectType({
                 return chatRoom.notificatedUsers.length === 1
             }
         })
+        t.nonNull.boolean('isBookmarked', {
+            resolve: async ({ id }, { }, ctx) => {
+                const user = await getIUser(ctx)
+                const chatRoom = await ctx.prisma.chatRoom.findUnique({
+                    where: { id },
+                    include: {
+                        bookmarkedUsers: { where: { id: user.id } }
+                    }
+                })
+                if (!chatRoom) throw new Error
+                return chatRoom.bookmarkedUsers.length === 1
+            }
+        })
     }
 })
