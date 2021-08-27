@@ -52,7 +52,6 @@ export const ChatRoom = objectType({
                     }
                 })
                 if (!chatRoom) throw new Error
-                console.log('notification : ', chatRoom.notificatedUsers.length === 1)
                 return chatRoom.notificatedUsers.length === 1
             }
         })

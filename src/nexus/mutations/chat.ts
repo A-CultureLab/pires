@@ -44,6 +44,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
             include: {
                 chatRoom: {
                     include: {
+                        notificatedUsers: true,
                         users: true
                     }
                 },
@@ -58,10 +59,18 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
         ctx.pubsub.publish(CHAT_CREATED, chat)
         ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
 
-        chat.chatRoom.users.filter(v => v.id !== user.id).forEach((v) => {
-            if (!v.fcmToken) return
-            userMessaging.send({
-                token: v.fcmToken,
+        const notificationOnUsers = chat.chatRoom.notificatedUsers
+            .filter(v => v.id !== user.id) // 발신자 제외
+            .filter(v => !!v.fcmToken) // fcmToken 없는 유저 제외
+        const notificationOffUsers = chat.chatRoom.users
+            .filter(v => !notificationOnUsers.find((u) => v.id === u.id)) // 알림 ON인 유저 제외
+            .filter(v => v.id !== user.id) // 발신자 제외
+            .filter(v => !!v.fcmToken) // FCMToken 없는 유저 제외
+
+        try {
+            // Notification On Users // 유음으로 보냄
+            await userMessaging.sendMulticast({
+                tokens: notificationOnUsers.map(v => v.fcmToken || ''),
                 data: {
                     chatRoomId: chatRoom.id.toString(),
                     type: 'chat',
@@ -72,7 +81,20 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                     imageUrl: user.image
                 },
             })
-        })
+            // Notification Off Users // 무음 메시지
+            await userMessaging.sendMulticast({
+                tokens: notificationOffUsers.map(v => v.fcmToken || ''),
+                data: {
+                    chatRoomId: chatRoom.id.toString(),
+                    type: 'chat',
+                },
+                notification: {
+                    title: user.name,
+                    body: input.message || '사진',
+                    imageUrl: user.image
+                },
+            })
+        } catch (error) { console.log(error) }
 
 
         return chat
