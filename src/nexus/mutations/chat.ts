@@ -33,8 +33,21 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
         const chatRoomUsers = chatRoom.userChatRoomInfos.map(v => v.user)
         const userChatRoomInfos = chatRoom.userChatRoomInfos
 
-        // 해당 채팅방에 있는지 확인
-        if (!chatRoomUsers.find(v => v.id !== user.id)) throw new Error('no Permission')
+        // 해당 채팅방에 유저가 있는지 확인
+        if (!chatRoomUsers.find(v => v.id === user.id)) throw new Error('no Permission')
+
+        // private 채팅중 상대방이 나가기 (차단 아님)를 누른 상태일때 다시 채팅방리스트 스크린 UI에 표시해주기 위해 jointedAt을 now로 설정해줌 
+        if (chatRoom.type === 'private') {
+            await ctx.prisma.userChatRoomInfo.updateMany({
+                where: {
+                    chatRoomId: chatRoom.id,
+                    joinedAt: null
+                },
+                data: {
+                    joinedAt: new Date()
+                }
+            })
+        }
 
         const chat = await ctx.prisma.chat.create({
             data: {
@@ -50,13 +63,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
             where: { id: chat.chatRoomId },
             data: { recentChatCreatedAt: chat.createdAt }
         })
-        // private 채팅시 기존에 나갔더라도 다시 UI상에 보여주기위해 exitedAt을 null로 초기화함
-        if (chatRoom.type === 'private') {
-            await ctx.prisma.userChatRoomInfo.updateMany({
-                where: { chatRoomId: chatRoom.id },
-                data: { exitedAt: null }
-            })
-        }
+
 
 
         ctx.pubsub.publish(CHAT_CREATED, chat)

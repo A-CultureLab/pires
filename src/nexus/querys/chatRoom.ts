@@ -17,7 +17,7 @@ export const chatRooms = queryField(t => t.nonNull.list.nonNull.field('chatRooms
                 userChatRoomInfos: {
                     some: {
                         userId: user.id,
-                        exitedAt: null // 나가기 하지 않은 챗룸만 private 채팅에서만 유의미함
+                        joinedAt: { not: null } // 나가기 하지 않은 챗룸만 private 채팅에서만 유의미함
                     }
                 },
             },

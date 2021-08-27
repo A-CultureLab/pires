@@ -25,7 +25,7 @@ model User {
   email              String    @unique
   image              String
   // get from user certification
-  uniqueKey          String    @unique
+  uniqueKey          String    @unique // 다날 본인인증시 제공받는 ID
   name               String
   gender             Gender
   birth              DateTime
@@ -57,8 +57,7 @@ model UserChatRoomInfo {
 
   updatedAt DateTime @updatedAt
 
-  joinedAt DateTime  @default(now())
-  exitedAt DateTime? // UI 상에 나가기한 private 채팅방을 안보여주기 위한 Field. private 채팅인 경우 createChat 과정에서 발신자와 수신자 모두의 exitedAt = null 로 업데이트됨, 기본값 > private = Date group = null
+  joinedAt DateTime? @default(now())
 
   bookmarked  Boolean @default(false)
   notificated Boolean @default(true)

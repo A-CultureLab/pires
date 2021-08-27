@@ -7,7 +7,6 @@ export const UserChatRoomInfo = objectType({
         t.model.id()
         t.model.updatedAt()
         t.model.joinedAt()
-        t.model.exitedAt()
         t.model.bookmarked()
         t.model.notificated()
         t.model.userId()

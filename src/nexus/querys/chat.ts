@@ -34,7 +34,7 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
             take: take || undefined,
             where: {
                 chatRoomId,
-                createdAt: { gte: userChatRoomInfo.joinedAt } // 채팅방에 참여한 이후의 채팅들만 보여줌
+                createdAt: { gte: userChatRoomInfo.joinedAt || new Date() } // 채팅방에 참여한 이후의 채팅들만 보여줌
             },
             orderBy: { createdAt: 'desc' }
         })

@@ -1,5 +1,6 @@
 import { objectType } from "nexus";
 import getIUser from "../../utils/getIUser";
+import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator";
 
 export const ChatRoom = objectType({
     name: 'ChatRoom',
@@ -11,11 +12,22 @@ export const ChatRoom = objectType({
         t.model.type()
         t.model.chats()
         t.model.userChatRoomInfos()
-        t.field('recentChat', {
+        t.nullable.field('recentChat', {
             type: 'Chat',
             resolve: async ({ id }, { }, ctx) => {
+                const user = await getIUser(ctx)
+
+                const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({
+                    where: { id: userChatRoomInfoIdGenerator.generate(id, user.id) }
+                })
+
+                if (!userChatRoomInfo) throw new Error('No UserChatRoominfo')
+
                 return ctx.prisma.chat.findFirst({
-                    where: { chatRoomId: id },
+                    where: {
+                        chatRoomId: id,
+                        createdAt: { gte: userChatRoomInfo.joinedAt || new Date() }
+                    },
                     orderBy: { createdAt: 'desc' }
                 })
             }
