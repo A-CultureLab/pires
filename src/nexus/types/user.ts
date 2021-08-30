@@ -25,8 +25,6 @@ export const User = objectType({
         t.model.pets()
         t.model.chats()
         t.model.userChatRoomInfos()
-        t.model.iBlockedUsers()
-        t.model.blockMeUsers()
         t.nonNull.int('notReadChatCount', {
             resolve: async ({ id }, { }, ctx) => {
                 return await ctx.prisma.chat.count({
