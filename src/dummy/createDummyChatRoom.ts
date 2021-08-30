@@ -1,5 +1,6 @@
 import { ChatRoomType } from "@prisma/client"
 import { prisma } from "../context"
+import chatRoomIdGenerator from "../utils/chatRoomIdGenerator"
 import userChatRoomInfoIdGenerator from "../utils/userChatRoomInfoIdGenerator"
 
 const TYPE: ChatRoomType = 'private'
@@ -8,6 +9,7 @@ const USER_IDS = ['KAKAO:1800305740', 'KAKAO:1828988879']
 const createDummyChatRoom = async () => {
     const chatRoom = await prisma.chatRoom.create({
         data: {
+            id: TYPE === 'private' ? chatRoomIdGenerator.generate(USER_IDS) : undefined,
             type: TYPE,
         }
     })
@@ -23,4 +25,4 @@ const createDummyChatRoom = async () => {
 
 }
 
-createDummyChatRoom()
+// createDummyChatRoom()

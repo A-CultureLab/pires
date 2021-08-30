@@ -9,6 +9,7 @@ export const UserChatRoomInfo = objectType({
         t.model.joinedAt()
         t.model.bookmarked()
         t.model.notificated()
+        t.model.blocked()
         t.model.userId()
         t.model.chatRoomId()
         t.model.user()

@@ -1,4 +1,5 @@
 import { objectType } from "nexus";
+import chatRoomIdGenerator from "../../utils/chatRoomIdGenerator";
 import getIUser from "../../utils/getIUser";
 import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator";
 
@@ -12,6 +13,32 @@ export const ChatRoom = objectType({
         t.model.type()
         t.model.chats()
         t.model.userChatRoomInfos()
+        t.nonNull.boolean('isIBlocked', { // 내가 차단한 채팅방인가?
+            resolve: async ({ id, type }, { }, ctx) => {
+                if (type === 'group') return false
+
+                const user = await getIUser(ctx)
+                const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({
+                    where: { id: userChatRoomInfoIdGenerator.generate(id, user.id) },
+                })
+
+                return userChatRoomInfo?.blocked || false
+            }
+        })
+        t.nonNull.boolean('isBlockedMe', { // 내가 차단 당한 채팅방인가
+            resolve: async ({ id, type }, { }, ctx) => {
+                if (type === 'group') return false
+
+                const user = await getIUser(ctx)
+                const userIds = chatRoomIdGenerator.parse(id)
+                const otherUserId = userIds[0] === user.id ? userIds[1] : userIds[0]
+
+                const otherUserChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({
+                    where: { id: userChatRoomInfoIdGenerator.generate(id, otherUserId) },
+                })
+                return otherUserChatRoomInfo?.blocked || false
+            }
+        })
         t.nullable.field('recentChat', {
             type: 'Chat',
             resolve: async ({ id }, { }, ctx) => {

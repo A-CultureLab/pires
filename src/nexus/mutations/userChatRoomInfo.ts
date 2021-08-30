@@ -7,6 +7,7 @@ const updateUserChatRoomInfoInput = inputObjectType({
         t.nonNull.string('id')
         t.nullable.boolean('notificated')
         t.nullable.boolean('bookmarked')
+        t.nullable.boolean('blocked')
     }
 })
 
@@ -16,20 +17,19 @@ export const updateUserChatRoomInfo = mutationField(t => t.nonNull.field('update
         input: nonNull(updateUserChatRoomInfoInput)
     },
     resolve: async (_, { input }, ctx) => {
-        const { id, notificated, bookmarked } = input
+        const { id, notificated, bookmarked, blocked } = input
 
         const preUserChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({ where: { id } })
         const user = await getIUser(ctx)
 
         if (preUserChatRoomInfo?.userId !== user.id) throw new Error('No Permission')
 
-        console.log(input)
-
         const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.update({
             where: { id },
             data: {
                 notificated: notificated !== null ? notificated : undefined,
                 bookmarked: bookmarked !== null ? bookmarked : undefined,
+                blocked: blocked !== null ? blocked : undefined,
             }
         })
 

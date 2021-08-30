@@ -1,8 +1,8 @@
-import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../subscriptions";
-import { inputObjectType, mutationField, nonNull, stringArg } from "nexus";
+import { inputObjectType, mutationField, nonNull } from "nexus"
+import getIUser from "../../../utils/getIUser"
 
-import getIUser from "../../utils/getIUser";
-import { userMessaging } from "../../lib/firebase";
+import { userMessaging } from "../../../lib/firebase";
+import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../../subscriptions";
 
 const CreateChatInput = inputObjectType({
     name: 'CreateChatInput',
@@ -12,6 +12,7 @@ const CreateChatInput = inputObjectType({
         t.nullable.string('image')
     }
 })
+
 
 export const createChat = mutationField(t => t.nonNull.field('createChat', {
     type: 'Chat',
@@ -36,8 +37,11 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
         // 해당 채팅방에 유저가 있는지 확인
         if (!chatRoomUsers.find(v => v.id === user.id)) throw new Error('no Permission')
 
-        // private 채팅중 상대방이 나가기 (차단 아님)를 누른 상태일때 다시 채팅방리스트 스크린 UI에 표시해주기 위해 jointedAt을 now로 설정해줌 
+
         if (chatRoom.type === 'private') {
+            // 차단하거나 차단 당한 채팅이라면 오류
+            if (!!userChatRoomInfos.find(v => v.blocked)) throw new Error('Blocked ChatRoom')
+            // private 채팅중 상대방이 나가기 (차단 아님)를 누른 상태일때 다시 채팅방리스트 스크린 UI에 표시해주기 위해 jointedAt을 now로 설정해줌 
             await ctx.prisma.userChatRoomInfo.updateMany({
                 where: {
                     chatRoomId: chatRoom.id,
@@ -47,6 +51,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                     joinedAt: new Date()
                 }
             })
+
         }
 
         const chat = await ctx.prisma.chat.create({
@@ -107,30 +112,6 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
             })
         } catch (error) { console.log(error) }
 
-
-        return chat
-    }
-}))
-
-export const deleteChat = mutationField(t => t.nonNull.field('deleteChat', {
-    type: 'Chat',
-    args: {
-        id: nonNull(stringArg())
-    },
-    resolve: async (_, { id }, ctx) => {
-
-        const user = await getIUser(ctx)
-        const preChat = await ctx.prisma.chat.findUnique({ where: { id } })
-
-        if (!preChat) throw new Error('Invalid Chat Id')
-        if (preChat.userId !== user.id) throw new Error('No Permission')
-
-        const chat = await ctx.prisma.chat.update({
-            where: { id },
-            data: {
-                isDeleted: true,
-            }
-        })
 
         return chat
     }

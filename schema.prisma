@@ -46,14 +46,12 @@ model User {
   pets              Pet[]
   userChatRoomInfos UserChatRoomInfo[]
   chats             Chat[]
-  iBlockedUsers     User[]             @relation("iBlockedUsersBlockMeUsers")
-  blockMeUsers      User[]             @relation("iBlockedUsersBlockMeUsers")
 
   @@index([birth, gender])
 }
 
 model UserChatRoomInfo {
-  id String @id
+  id String @id // hash ChatRoomId + key + UserId
 
   updatedAt DateTime @updatedAt
 
@@ -61,6 +59,7 @@ model UserChatRoomInfo {
 
   bookmarked  Boolean @default(false)
   notificated Boolean @default(true)
+  blocked     Boolean @default(false)
 
   userId     String
   chatRoomId String
@@ -73,7 +72,7 @@ model UserChatRoomInfo {
 }
 
 model ChatRoom {
-  id                  String       @id @default(cuid())
+  id                  String       @id @default(cuid()) // private 채팅이라면 UserId + key + UserId
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
   recentChatCreatedAt DateTime?
