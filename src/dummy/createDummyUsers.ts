@@ -10,7 +10,7 @@ const createDummyUsers = async () => {
 
     for (let i = 0; i < NUMBER; i++) {
         try {
-            const address = await prisma.address.findUnique({ where: { id: i + 8400 } }) // 기존 주소에서 카피
+            const address = await prisma.address.findUnique({ where: { id: faker.datatype.uuid() } }) // 기존 주소에서 카피
 
             if (!address) continue
 

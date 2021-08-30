@@ -129,8 +129,6 @@ export const deleteChat = mutationField(t => t.nonNull.field('deleteChat', {
             where: { id },
             data: {
                 isDeleted: true,
-                message: '삭제된 메시지',
-                image: null
             }
         })
 
