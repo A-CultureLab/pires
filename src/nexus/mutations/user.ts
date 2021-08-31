@@ -3,7 +3,7 @@ import { inputObjectType, mutationField, nonNull, stringArg } from "nexus";
 import axios from "axios";
 import getIUser from "../../utils/getIUser";
 import { userAuth } from "../../lib/firebase";
-import { v4 } from 'uuid';
+import { nanoid } from 'nanoid'
 
 export const SignupInput = inputObjectType({
     name: 'SignupInput',
@@ -93,14 +93,14 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
         const updatedUser = await ctx.prisma.user.update({
             where: { id: user.id },
             data: {
-                id: 'deleted:' + v4(),
+                id: 'deleted:' + nanoid(),
                 name: '탈퇴한 사용자',
                 image: 'https://static.thenounproject.com/png/574748-200.png',
                 withdrawDate: new Date(),
                 withdrawReason: reason,
                 birth: new Date(),
-                email: 'deleted:' + v4(),
-                uniqueKey: 'deleted:' + v4(),
+                email: 'deleted:' + nanoid(),
+                uniqueKey: 'deleted:' + nanoid(),
                 fcmToken: null
             }
         })

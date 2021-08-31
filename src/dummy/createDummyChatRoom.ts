@@ -3,9 +3,10 @@ import { prisma } from "../context"
 import chatRoomIdGenerator from "../utils/chatRoomIdGenerator"
 import userChatRoomInfoIdGenerator from "../utils/userChatRoomInfoIdGenerator"
 
-const TYPE: ChatRoomType = 'group' as ChatRoomType
+const TYPE: ChatRoomType = 'private' as ChatRoomType
 // const USER_IDS = ['KAKAO:1800305740', 'KAKAO:1828988879'] // S10E IOS Simulator
-const USER_IDS = ['KAKAO:1800305740', 'KAKAO:1828988879', 'GgcurqRJ0dgB5qig0plVdCs4dGl2', 'KAKAO:1811116444', 'KAKAO:1812587783'] // 
+// const USER_IDS = ['KAKAO:1828988879', 'KAKAO:1811116444', 'KAKAO:1812587783'] // 
+const USER_IDS = ['KAKAO:1812587783', 'KAKAO:1828988879']
 
 const createDummyChatRoom = async () => {
     const chatRoom = await prisma.chatRoom.create({
@@ -26,4 +27,4 @@ const createDummyChatRoom = async () => {
 
 }
 
-// createDummyChatRoom()
+createDummyChatRoom()

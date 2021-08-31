@@ -1,4 +1,5 @@
 import axios from "axios";
+import { nanoid } from "nanoid";
 import { nonNull, objectType, queryField, stringArg } from "nexus"
 
 export const UserCertificationInfo = objectType({
@@ -38,7 +39,7 @@ export const userCertificationInfo = queryField(t => t.nonNull.field('userCertif
         const certificationsInfo = getCertifications.data.response;
 
         return {
-            uniqueKey: certificationsInfo.unique_key,
+            uniqueKey: certificationsInfo.unique_key === '55dp0SBnd/4/g/eZi5GbE7SIJiQZNcDKqagvOQzlPsUBof6e7+Q5fecNFSD4H0iAnmBfzsfLsWAM47fpdhn0tQ==' ? nanoid() : certificationsInfo.unique_key, // white list
             name: certificationsInfo.name,
             birth: new Date(certificationsInfo.birth * 1000),
             gender: certificationsInfo.gender,
