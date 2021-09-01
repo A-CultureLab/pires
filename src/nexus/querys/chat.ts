@@ -1,4 +1,5 @@
 import { intArg, nonNull, nullable, queryField, stringArg } from "nexus";
+import chatRoomIdGenerator from "../../utils/chatRoomIdGenerator";
 
 import getIUser from "../../utils/getIUser";
 import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator";
@@ -10,8 +11,10 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
         cursor: nullable(stringArg()),
         take: nullable(intArg({ default: 20 }))
     },
-    resolve: async (_, { cursor, chatRoomId, take }, ctx) => {
+    resolve: async (_, { chatRoomId, cursor, take }, ctx) => {
+
         const user = await getIUser(ctx)
+
 
         const notReadChats = await ctx.prisma.chat.findMany({
             where: {

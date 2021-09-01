@@ -2,7 +2,6 @@ import { mutationType, queryType } from "nexus"
 
 export const query = queryType({
     definition(t) {
-        t.nonNull.crud.chatRoom()
         t.nonNull.crud.user()
         t.nonNull.crud.pet()
     }
