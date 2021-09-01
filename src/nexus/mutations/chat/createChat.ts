@@ -85,31 +85,35 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
 
         try {
             // Notification On Users // 유음으로 보냄
-            await userMessaging.sendMulticast({
-                tokens: notificationOnUsers.map(v => v.user.fcmToken || ''),
-                data: {
-                    chatRoomId: chatRoom.id.toString(),
-                    type: 'chat',
-                },
-                notification: {
-                    title: user.name,
-                    body: input.message || '사진',
-                    imageUrl: user.image
-                },
-            })
+            if (notificationOnUsers.length > 0) {
+                await userMessaging.sendMulticast({
+                    tokens: notificationOnUsers.map(v => v.user.fcmToken || ''),
+                    data: {
+                        chatRoomId: chatRoom.id.toString(),
+                        type: 'chat',
+                    },
+                    notification: {
+                        title: user.name,
+                        body: input.message || '사진',
+                        imageUrl: user.image
+                    },
+                })
+            }
             // Notification Off Users // 무음 메시지
-            await userMessaging.sendMulticast({
-                tokens: notificationOffUsers.map(v => v.user.fcmToken || ''),
-                data: {
-                    chatRoomId: chatRoom.id.toString(),
-                    type: 'chat',
-                },
-                notification: {
-                    title: user.name,
-                    body: input.message || '사진',
-                    imageUrl: user.image
-                },
-            })
+            if (notificationOffUsers.length > 0) {
+                await userMessaging.sendMulticast({
+                    tokens: notificationOffUsers.map(v => v.user.fcmToken || ''),
+                    data: {
+                        chatRoomId: chatRoom.id.toString(),
+                        type: 'chat',
+                    },
+                    notification: {
+                        title: user.name,
+                        body: input.message || '사진',
+                        imageUrl: user.image
+                    },
+                })
+            }
         } catch (error) { console.log(error) }
 
 
