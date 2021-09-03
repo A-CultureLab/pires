@@ -60,12 +60,26 @@ export const ChatRoom = objectType({
             }
         })
         t.nonNull.string('name', {
-            resolve: async ({ id }, { }, ctx) => {
+            resolve: async ({ id, type }, { }, ctx) => {
                 const user = await getIUser(ctx, true)
                 const users = await ctx.prisma.user.findMany({
-                    where: { userChatRoomInfos: { some: { chatRoomId: id } } }
+                    where: {
+                        userChatRoomInfos: { some: { chatRoomId: id } },
+                        withdrawDate: type === 'group' ? null : undefined,
+                        id: { not: user?.id }
+                    },
+                    orderBy: {
+                        name: 'asc',
+                    },
+                    select: {
+                        name: true
+                    },
+                    take: 10
                 })
-                return users.filter(v => v.id !== user?.id).map(v => v.name).join(', ')
+
+                return users
+                    .map(v => v.name)
+                    .join(', ')
             }
         })
         t.nonNull.field('iUserChatRoomInfo', {
