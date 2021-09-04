@@ -61,12 +61,12 @@ export const ChatRoom = objectType({
         })
         t.nonNull.string('name', {
             resolve: async ({ id, type }, { }, ctx) => {
-                const user = await getIUser(ctx, true)
+                const user = await getIUser(ctx)
                 const users = await ctx.prisma.user.findMany({
                     where: {
                         userChatRoomInfos: { some: { chatRoomId: id } },
                         withdrawDate: type === 'group' ? null : undefined,
-                        id: { not: user?.id }
+                        id: { not: user.id }
                     },
                     orderBy: {
                         name: 'asc',
@@ -80,6 +80,27 @@ export const ChatRoom = objectType({
                 return users
                     .map(v => v.name)
                     .join(', ')
+            }
+        })
+        t.nonNull.string('image', {
+            resolve: async ({ id, type }, { }, ctx) => {
+                const user = await getIUser(ctx)
+                const users = await ctx.prisma.user.findMany({
+                    where: {
+                        userChatRoomInfos: { some: { chatRoomId: id } },
+                        withdrawDate: type === 'group' ? null : undefined,
+                        id: { not: user.id }
+                    },
+                    orderBy: {
+                        name: 'asc',
+                    },
+                    select: {
+                        image: true
+                    },
+                    take: 1
+                })
+
+                return users[0].image
             }
         })
         t.nonNull.field('iUserChatRoomInfo', {

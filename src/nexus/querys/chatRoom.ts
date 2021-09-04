@@ -41,7 +41,26 @@ export const chatRoom = queryField(t => t.nonNull.field('chatRoom', {
         }
 
         const chatRoom = await ctx.prisma.chatRoom.findUnique({ where: { id: id || '' } })
+
+
         if (!chatRoom) throw new Error('채팅방이 없습니다.')
+
+        const notReadChats = await ctx.prisma.chat.findMany({
+            where: {
+                chatRoom: { id: chatRoom.id },
+                notReadUserChatRoomInfos: { some: { userId: user.id } }
+            },
+            select: { id: true }
+        })
+
+        // 안읽음 메시지 삭제
+        await ctx.prisma.userChatRoomInfo.update({
+            where: { id: userChatRoomInfoIdGenerator.generate(chatRoom.id, user.id) },
+            data: {
+                notReadChats: { disconnect: notReadChats }
+            }
+        })
+
         return chatRoom
 
     }

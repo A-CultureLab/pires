@@ -16,21 +16,11 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
         const user = await getIUser(ctx)
 
 
-        const notReadChats = await ctx.prisma.chat.findMany({
-            where: {
-                chatRoomId,
-                notReadUserChatRoomInfos: { some: { userId: user.id } }
-            },
-            select: { id: true }
+        const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({
+            where: { id: userChatRoomInfoIdGenerator.generate(chatRoomId, user.id) }
         })
 
-        // 안읽음 메시지 삭제
-        const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.update({
-            where: { id: userChatRoomInfoIdGenerator.generate(chatRoomId, user.id) },
-            data: {
-                notReadChats: { disconnect: notReadChats }
-            }
-        })
+        if (!userChatRoomInfo) throw new Error('초대되지 않은 채팅방입니다.')
 
         const chats = await ctx.prisma.chat.findMany({
             cursor: cursor ? { id: cursor } : undefined,
