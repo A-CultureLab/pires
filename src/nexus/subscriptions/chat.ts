@@ -18,22 +18,12 @@ export const chatCreated = subscriptionField('chatCreated', {
         (_, { }, ctx: Context) => ctx.pubsub.asyncIterator(CHAT_CREATED),
         async (payload: Chat, { userId, chatRoomId }, ctx: Context) => {
             console.log('chatCreated')
-
-            if (payload.chatRoomId !== chatRoomId) return false
-
             ctx.userId = userId
-            const user = await getIUser(ctx)
-
-            const chatRoom = await ctx.prisma.chatRoom.findUnique({
-                where: { id: payload.chatRoomId },
-                include: { userChatRoomInfos: { include: { user: true } } }
-            })
-            return (chatRoom?.userChatRoomInfos.map(v => v.user) || []).filter(v => v.id === user.id).length !== 0
+            //  해당 챗룸만 
+            return payload.chatRoomId === chatRoomId
         }
     ),
     resolve: async (payload: Chat, { }, ctx) => {
-        console.log('reslove')
-
         const user = await getIUser(ctx)
 
         const notReadChats = await ctx.prisma.chat.findMany({
@@ -45,7 +35,7 @@ export const chatCreated = subscriptionField('chatCreated', {
                 id: true
             }
         })
-
+        // 않읽은 메시지 삭제
         await ctx.prisma.userChatRoomInfo.update({
             where: { id: userChatRoomInfoIdGenerator.generate(payload.chatRoomId, user.id) },
             data: {
@@ -54,6 +44,30 @@ export const chatCreated = subscriptionField('chatCreated', {
         })
 
 
+        return payload
+    }
+})
+
+
+export const CHAT_UPDATED = 'CHAT_UPDATED'
+
+// ChatDetailScreen 에 사용됨
+export const chatUpdated = subscriptionField('chatUpdated', {
+    type: 'Chat',
+    args: {
+        userId: nonNull(stringArg()),
+        chatRoomId: nonNull(stringArg())
+    },
+    subscribe: withFilter(
+        (_, { }, ctx: Context) => ctx.pubsub.asyncIterator(CHAT_UPDATED),
+        async (payload: Chat, { userId, chatRoomId }, ctx: Context) => {
+            console.log('chatUpdated')
+            ctx.userId = userId
+            //  해당 챗룸만 
+            return payload.chatRoomId === chatRoomId
+        }
+    ),
+    resolve: async (payload: Chat, { }, ctx) => {
         return payload
     }
 })

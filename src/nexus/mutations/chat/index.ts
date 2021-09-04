@@ -1,4 +1,4 @@
-import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../../subscriptions";
+import { CHAT_CREATED, CHAT_ROOM_UPDATED, CHAT_UPDATED } from "../../subscriptions";
 import { inputObjectType, mutationField, nonNull, stringArg } from "nexus";
 
 import getIUser from "../../../utils/getIUser";
@@ -22,8 +22,14 @@ export const deleteChat = mutationField(t => t.nonNull.field('deleteChat', {
             where: { id },
             data: {
                 isDeleted: true,
+            },
+            include: {
+                chatRoom: true
             }
         })
+
+        ctx.pubsub.publish(CHAT_UPDATED, chat)
+        ctx.pubsub.publish(CHAT_ROOM_UPDATED, chat.chatRoom)
 
         return chat
     }
