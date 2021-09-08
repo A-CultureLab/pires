@@ -13,6 +13,7 @@ export const ChatRoom = objectType({
         t.model.type()
         t.model.chats()
         t.model.userChatRoomInfos()
+        t.model.reports()
         t.nonNull.boolean('isIBlocked', { // 내가 차단한 채팅방인가?
             resolve: async ({ id, type }, { }, ctx) => {
                 if (type === 'group') return false

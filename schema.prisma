@@ -46,6 +46,8 @@ model User {
   pets              Pet[]
   userChatRoomInfos UserChatRoomInfo[]
   chats             Chat[]
+  reports           Report[]           @relation("userToReports") // 내가 신고 당한 내역
+  myReports         Report[]           @relation("userToMyReports") // 내 신고내역
 
   @@index([birth, gender])
 }
@@ -81,6 +83,7 @@ model ChatRoom {
 
   chats             Chat[]
   userChatRoomInfos UserChatRoomInfo[]
+  reports           Report[]
 
   @@index([recentChatCreatedAt])
 }
@@ -97,6 +100,7 @@ model Chat {
   user                     User               @relation(fields: [userId], references: [id])
   chatRoom                 ChatRoom           @relation(fields: [chatRoomId], references: [id])
   notReadUserChatRoomInfos UserChatRoomInfo[] @relation("notReadChatsNotReadUserChatRoomInfos")
+  reports                  Report[]
 
   userId     String
   chatRoomId String
@@ -199,6 +203,24 @@ model Pet {
   userId String
 
   @@index([species, character, birth, weight])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reason   String @db.Text
+  reporter User   @relation(fields: [reporterId], references: [id], "userToMyReports")
+
+  user     User?     @relation(fields: [userId], references: [id], "userToReports")
+  chat     Chat?     @relation(fields: [chatId], references: [id])
+  chatRoom ChatRoom? @relation(fields: [chatRoomId], references: [id])
+
+  reporterId String
+  userId     String?
+  chatId     String?
+  chatRoomId String?
 }
 
 enum Gender {

@@ -10,6 +10,7 @@ export const Chat = objectType({
         t.model.user()
         t.model.chatRoom()
         t.model.notReadUserChatRoomInfos()
+        t.model.reports()
         t.model.userId()
         t.model.chatRoomId()
         t.nullable.string('message', {
