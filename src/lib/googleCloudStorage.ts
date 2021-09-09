@@ -1,6 +1,7 @@
 import { Storage } from '@google-cloud/storage';
 import { FileUpload } from 'graphql-upload';
 import { nanoid } from 'nanoid';
+import apolloError from '../utils/apolloError';
 
 
 const storage = new Storage()
@@ -29,8 +30,7 @@ export const uploadImage = async (file: Promise<FileUpload>, path?: string): Pro
         })
         return uri
     } catch (error) {
-        console.error(error)
-        throw new Error('이미지 업로드 실패')
+        throw apolloError('이미지 업로드 실패', 'IMAGE_UPLOAD_FAIL', { metaError: error })
     }
 }
 

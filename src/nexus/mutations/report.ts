@@ -1,4 +1,5 @@
 import { floatArg, mutationField, nonNull, nullable, stringArg } from "nexus"
+import apolloError from "../../utils/apolloError"
 import getIUser from "../../utils/getIUser"
 
 // 좌표를 주소로 전환
@@ -14,7 +15,7 @@ export const createReport = mutationField(t => t.nonNull.field('createReport', {
 
         const user = await getIUser(ctx)
 
-        if ([userId, chatId, chatRoomId].filter(v => !!v).length !== 1) throw new Error('신고 대상은 하나여야 합니다')
+        if ([userId, chatId, chatRoomId].filter(v => !!v).length !== 1) throw apolloError('신고 대상은 하나여야 합니다', 'INVALID_ARGS')
 
         return ctx.prisma.report.create({
             data: {

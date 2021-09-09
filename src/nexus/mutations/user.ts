@@ -4,6 +4,7 @@ import axios from "axios";
 import getIUser from "../../utils/getIUser";
 import { userAuth } from "../../lib/firebase";
 import { nanoid } from 'nanoid'
+import apolloError from "../../utils/apolloError";
 
 export const SignupInput = inputObjectType({
     name: 'SignupInput',
@@ -33,7 +34,7 @@ export const signup = mutationField(t => t.nonNull.field('signup', {
     resolve: async (_, { data }, ctx) => {
         // 토큰 가공
         let token = ctx.expressContext.req.headers.authorization
-        if (!token) throw new Error('로그인이 필요한 작업입니다')
+        if (!token) throw apolloError('로그인이 필요한 작업입니다', 'LOGIN_REQUIRE')
         token = token.replace('Bearer ', '')
         const { uid: id } = await userAuth.verifyIdToken(token)
         return ctx.prisma.user.create({
@@ -118,7 +119,8 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
                         'Authorization': 'KakaoAK ' + process.env.KAKAO_KEY
                     }
                 })
-            } catch (error) {
+            } catch (error: any) {
+                // 안되더라도 상관 없음 
                 console.error(error.message)
             }
         }

@@ -1,5 +1,6 @@
 import { ChatRoom } from "@prisma/client"
 import { mutationField, nonNull, stringArg } from "nexus"
+import apolloError from "../../utils/apolloError"
 import getIUser from "../../utils/getIUser"
 import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator"
 
@@ -24,8 +25,8 @@ export const exitChatRoom = mutationField(t => t.nonNull.field('exitChatRoom', {
             }
         })
 
-        if (!preChatRoom) throw new Error('Invalid ChatRoom Id')
-        if (!preChatRoom.userChatRoomInfos.map(({ user: { id } }) => id).includes(user.id)) throw new Error('No Permission') // 방에 없다면 에러
+        if (!preChatRoom) throw apolloError('유효하지 않은 채팅방 아이디', 'INVALID_ID')
+        if (!preChatRoom.userChatRoomInfos.map(({ user: { id } }) => id).includes(user.id)) throw apolloError('이미 채팅방에서 나왔습니다', 'NO_PERMISSION') // 방에 없다면 에러
 
         if (preChatRoom.type === 'private') {
             await ctx.prisma.userChatRoomInfo.update({
@@ -41,7 +42,7 @@ export const exitChatRoom = mutationField(t => t.nonNull.field('exitChatRoom', {
 
         const chatRoom = await ctx.prisma.chatRoom.findUnique({ where: { id } })
 
-        if (!chatRoom) throw new Error('No ChatRoom')
+        if (!chatRoom) throw apolloError('유효하지 않은 채팅방 아이디', 'INVALID_ID')
         return chatRoom
     }
 }))

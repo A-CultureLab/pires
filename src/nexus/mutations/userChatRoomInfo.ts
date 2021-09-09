@@ -1,4 +1,5 @@
 import { inputObjectType, mutationField, nonNull, stringArg } from "nexus"
+import apolloError from "../../utils/apolloError"
 import getIUser from "../../utils/getIUser"
 
 const updateUserChatRoomInfoInput = inputObjectType({
@@ -22,7 +23,7 @@ export const updateUserChatRoomInfo = mutationField(t => t.nonNull.field('update
         const preUserChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({ where: { id } })
         const user = await getIUser(ctx)
 
-        if (preUserChatRoomInfo?.userId !== user.id) throw new Error('No Permission')
+        if (preUserChatRoomInfo?.userId !== user.id) throw apolloError('채팅방 수정 권한 없음', 'NO_PERMISSION')
 
         const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.update({
             where: { id },

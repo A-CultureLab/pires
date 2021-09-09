@@ -15,7 +15,6 @@ export const chatRoomUpdated = subscriptionField('chatRoomUpdated', {
     subscribe: withFilter(
         (_, { }, ctx: Context) => ctx.pubsub.asyncIterator(CHAT_ROOM_UPDATED),
         async (payload: ChatRoom, { userId }, ctx: Context) => {
-            console.log('chatRoomUpdated')
 
             ctx.userId = userId // trick TODO
             const user = await getIUser(ctx)
@@ -29,7 +28,6 @@ export const chatRoomUpdated = subscriptionField('chatRoomUpdated', {
         }
     ),
     resolve: async (payload: ChatRoom, { }, ctx) => {
-        console.log('chatroom reslove')
         return payload
     }
 })

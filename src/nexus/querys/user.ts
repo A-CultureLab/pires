@@ -1,6 +1,7 @@
 import axios from "axios"
 import { intArg, nonNull, nullable, queryField, stringArg } from "nexus"
 import { userAuth } from "../../lib/firebase"
+import apolloError from "../../utils/apolloError"
 import getIUser from "../../utils/getIUser"
 
 // Query - 내 정보를 가져옴
@@ -35,7 +36,7 @@ export const kakaoTokenToFirebaseToken = queryField(t => t.nonNull.field('kakaoT
             { property_keys: ['kakao_account.email', 'properties.nickname', 'properties.profile_image'] },
             { headers: { 'Authorization': `Bearer ${kakaoAccessToken}` } }
         )
-        if (!result.data.id) throw new Error('유효하지 않은 아이디')
+        if (!result.data.id) throw apolloError('유효하지 않은 아이디', 'INVALID_ID')
         const kakaoUserId = `KAKAO:${result.data.id}`
         const properties = {
             email: result?.data?.kakao_account?.email,
@@ -45,9 +46,8 @@ export const kakaoTokenToFirebaseToken = queryField(t => t.nonNull.field('kakaoT
         // 파이어베이스에 유저 생성 or 업데이트
         try {
             await userAuth.updateUser(kakaoUserId, properties)
-        } catch (error) {
+        } catch (error: any) {
             if (error.code !== 'auth/user-not-found') throw error
-            console.log(properties)
             await userAuth.createUser({ ...properties, uid: kakaoUserId })
         }
 

@@ -17,7 +17,6 @@ export const chatCreated = subscriptionField('chatCreated', {
     subscribe: withFilter(
         (_, { }, ctx: Context) => ctx.pubsub.asyncIterator(CHAT_CREATED),
         async (payload: Chat, { userId, chatRoomId }, ctx: Context) => {
-            console.log('chatCreated')
             ctx.userId = userId
             //  해당 챗룸만 
             return payload.chatRoomId === chatRoomId
@@ -61,7 +60,6 @@ export const chatUpdated = subscriptionField('chatUpdated', {
     subscribe: withFilter(
         (_, { }, ctx: Context) => ctx.pubsub.asyncIterator(CHAT_UPDATED),
         async (payload: Chat, { userId, chatRoomId }, ctx: Context) => {
-            console.log('chatUpdated')
             ctx.userId = userId
             //  해당 챗룸만 
             return payload.chatRoomId === chatRoomId

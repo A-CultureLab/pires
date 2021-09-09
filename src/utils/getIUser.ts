@@ -1,6 +1,7 @@
 import { User } from '.prisma/client'
 import { Context, prisma } from '../context'
 import { userAuth } from '../lib/firebase'
+import apolloError from './apolloError'
 
 // TODO @ts-ignore
 export const getIUser = async <B = false>(ctx: Context, ignoreError?: B): Promise<B extends true ? User | null : User> => {
@@ -14,7 +15,7 @@ export const getIUser = async <B = false>(ctx: Context, ignoreError?: B): Promis
     if (!token) {
         // @ts-ignore
         if (ignoreError) return null
-        else throw new Error('로그인이 필요한 작업입니다')
+        else throw apolloError('로그인이 필요한 작업입니다', 'LOGIN_REQUIRE', { log: false })
     }
 
     token = token.replace('Bearer ', '')

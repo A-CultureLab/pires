@@ -1,6 +1,5 @@
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
-import morgan from 'morgan'
 import hpp from 'hpp'
 import helmet from 'helmet'
 import { createContext } from './context'
@@ -15,7 +14,6 @@ require('dotenv').config()
 
 const {
   NODE_ENV
-
 } = process.env
 
 // express 설정
@@ -49,8 +47,8 @@ const apolloServer = new ApolloServer({
   schema,
   context: createContext,
   formatError: apolloFormatError,
-  plugins: [
-    ApolloLogPlugin({})
+  plugins: NODE_ENV === 'production' ? [] : [
+    // ApolloLogPlugin({})
   ],
   subscriptions: {
     onConnect: async (connectionParams, _webSocket, _context) => {

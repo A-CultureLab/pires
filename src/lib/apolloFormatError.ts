@@ -13,29 +13,15 @@ const logger = winston.createLogger({
 })
 
 const formatError = (error: GraphQLError): GraphQLError => {
-    let errorMessage = ''
-    console.error(error.message)
-    // try {
-    //     if (error.message.substr(0, ERROR_SIMBOL.length) === ERROR_SIMBOL) errorMessage = error.message.substr(ERROR_SIMBOL.length)
-    //     else {
-    //         logger.error(error.message + ' stack : ' + error.stack)
-    //         errorMessage = '알 수 없는 오류'
-    //     }
-    // } catch (error) {
-    //     errorMessage = '알 수 없는 오류'
-    // }
 
-    return {
-        ...error,
-        extensions: {
-            ...error.extensions,
-            exception: error.extensions ? {
-                ...error.extensions.exception,
-                stacktrace: []
-            } : undefined
-        },
-        message: errorMessage
+    process.env.NODE_ENV !== 'production' && console.log(error.message) // 디버깅용
+
+    if (error.extensions?.log) {
+        console.error(error)
+        process.env.NODE_ENV === 'production' && logger.error(error)
     }
+
+    return error
 }
 
 export default formatError

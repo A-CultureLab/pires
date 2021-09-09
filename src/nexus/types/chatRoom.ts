@@ -1,4 +1,5 @@
 import { objectType } from "nexus";
+import apolloError from "../../utils/apolloError";
 import chatRoomIdGenerator from "../../utils/chatRoomIdGenerator";
 import getIUser from "../../utils/getIUser";
 import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator";
@@ -49,7 +50,7 @@ export const ChatRoom = objectType({
                     where: { id: userChatRoomInfoIdGenerator.generate(id, user.id) }
                 })
 
-                if (!userChatRoomInfo) throw new Error('No UserChatRoominfo')
+                if (!userChatRoomInfo) throw apolloError('유효하지 않은 채팅방', 'INVALID_ID')
 
                 return ctx.prisma.chat.findFirst({
                     where: {
@@ -115,7 +116,7 @@ export const ChatRoom = objectType({
                     }
                 })
 
-                if (!userChatRoomInfo) throw new Error
+                if (!userChatRoomInfo) throw apolloError('유효하지 않은 유저의 채팅방 정보', 'INVALID_ID')
 
                 return userChatRoomInfo
             }

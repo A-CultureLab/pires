@@ -2,7 +2,7 @@
     "apps": [
         {
             "name": "app",
-            "script": "dist/server.js",
+            "script": "dist/src/server.js",
             "instances": "max",
             "exec_mode": "cluster",
             "wait_ready": true,

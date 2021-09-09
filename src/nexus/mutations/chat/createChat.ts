@@ -3,6 +3,7 @@ import getIUser from "../../../utils/getIUser"
 
 import { userMessaging } from "../../../lib/firebase";
 import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../../subscriptions";
+import apolloError from "../../../utils/apolloError";
 
 const CreateChatInput = inputObjectType({
     name: 'CreateChatInput',
@@ -29,18 +30,18 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                 userChatRoomInfos: { include: { user: true } }
             }
         })
-        if (!chatRoom) throw new Error('No ChatRoom')
+        if (!chatRoom) throw apolloError('유효하지 않은 채팅방입니다', 'INVALID_ID')
 
         const chatRoomUsers = chatRoom.userChatRoomInfos.map(v => v.user)
         const userChatRoomInfos = chatRoom.userChatRoomInfos
 
         // 해당 채팅방에 유저가 있는지 확인
-        if (!chatRoomUsers.find(v => v.id === user.id)) throw new Error('no Permission')
+        if (!chatRoomUsers.find(v => v.id === user.id)) throw apolloError('채팅방에 속해 있지 않습니다', 'NO_PERMISSION')
 
 
         if (chatRoom.type === 'private') {
             // 차단하거나 차단 당한 채팅이라면 오류
-            if (!!userChatRoomInfos.find(v => v.blocked)) throw new Error('Blocked ChatRoom')
+            if (!!userChatRoomInfos.find(v => v.blocked)) throw apolloError('차단된 채팅방입니다', 'NO_PERMISSION')
             // private 채팅중 상대방이 나가기 (차단 아님)를 누른 상태일때 다시 채팅방리스트 스크린 UI에 표시해주기 위해 jointedAt을 now로 설정해줌 
             await ctx.prisma.userChatRoomInfo.updateMany({
                 where: {
@@ -114,7 +115,9 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                     },
                 })
             }
-        } catch (error) { console.log(error) }
+        } catch (error: any) {
+            throw apolloError(error.message, error.code, { notification: false })
+        }
 
 
         return chat

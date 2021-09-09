@@ -1,4 +1,5 @@
 import { intArg, nonNull, nullable, queryField, stringArg } from "nexus";
+import apolloError from "../../utils/apolloError";
 import chatRoomIdGenerator from "../../utils/chatRoomIdGenerator";
 
 import getIUser from "../../utils/getIUser";
@@ -20,7 +21,7 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
             where: { id: userChatRoomInfoIdGenerator.generate(chatRoomId, user.id) }
         })
 
-        if (!userChatRoomInfo) throw new Error('초대되지 않은 채팅방입니다.')
+        if (!userChatRoomInfo) throw apolloError('초대되지 않은 채팅방입니다', 'NO_PERMISSION')
 
         const chats = await ctx.prisma.chat.findMany({
             cursor: cursor ? { id: cursor } : undefined,

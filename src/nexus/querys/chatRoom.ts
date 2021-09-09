@@ -1,4 +1,5 @@
 import { intArg, nonNull, nullable, queryField, stringArg } from "nexus";
+import apolloError from "../../utils/apolloError";
 import chatRoomIdGenerator from "../../utils/chatRoomIdGenerator";
 
 import getIUser from "../../utils/getIUser";
@@ -13,7 +14,7 @@ export const chatRoom = queryField(t => t.nonNull.field('chatRoom', {
     resolve: async (_, { id, userId }, ctx) => {
         const user = await getIUser(ctx)
 
-        if (!id && !userId) throw new Error('"ChatRoomId"와 "UserId"중 하나는 있어야합니다.')
+        if (!id && !userId) throw apolloError('"ChatRoomId"와 "UserId"중 하나는 있어야합니다', 'INVALID_ARGS')
 
 
         if (userId) { // UserId로 접근했을때 chatRoom이 없다면 하나 생성해줌
@@ -43,7 +44,7 @@ export const chatRoom = queryField(t => t.nonNull.field('chatRoom', {
         const chatRoom = await ctx.prisma.chatRoom.findUnique({ where: { id: id || '' } })
 
 
-        if (!chatRoom) throw new Error('채팅방이 없습니다.')
+        if (!chatRoom) throw apolloError('유효하지 않은 채팅방입니다', 'INVALID_ID')
 
         const notReadChats = await ctx.prisma.chat.findMany({
             where: {
