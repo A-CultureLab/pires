@@ -23,6 +23,7 @@
     "apollo-log": "^1.0.2",
     "apollo-server-express": "^2.25.2",
     "axios": "^0.21.1",
+    "compare-versions": "^3.6.0",
     "cross-env": "^7.0.3",
     "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",

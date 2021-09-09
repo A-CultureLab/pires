@@ -1,6 +1,8 @@
 import axios from "axios";
+import compareVersions from "compare-versions";
 import { nanoid } from "nanoid";
 import { nonNull, objectType, queryField, stringArg } from "nexus"
+import option from '../../../option.json'
 
 export const UserCertificationInfo = objectType({
     name: 'UserCertificationInfo',
@@ -44,5 +46,14 @@ export const userCertificationInfo = queryField(t => t.nonNull.field('userCertif
             birth: new Date(certificationsInfo.birth * 1000),
             gender: certificationsInfo.gender,
         }
+    }
+}))
+
+export const isUpdateRequire = queryField(t => t.nonNull.boolean('isUpdateRequire', {
+    args: {
+        version: nonNull(stringArg())
+    },
+    resolve: (_, { version }, ctx) => {
+        return compareVersions.compare(option.appTargetVersion, version, "<") || compareVersions.compare(option.appMinimumVersion, version, '>')
     }
 }))
