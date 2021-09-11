@@ -28,7 +28,7 @@ export const Pet = objectType({
                 const month = today.diff(birth, 'month')
 
                 if (month < 12) return (month + 1).toString() + '개월'
-                return (year + 1).toString() + '세'
+                return year.toString() + '세'
             }
         })
     }

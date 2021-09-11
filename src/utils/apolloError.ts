@@ -22,4 +22,3 @@ const apolloError = (
 })
 
 export default apolloError
-// TODO console.error 처리
