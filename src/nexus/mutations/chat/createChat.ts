@@ -92,11 +92,10 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                     data: {
                         chatRoomId: chatRoom.id.toString(),
                         type: 'chat',
-                    },
-                    notification: {
                         title: user.name,
-                        body: input.message || '사진',
-                        imageUrl: user.image
+                        message: input.message || '사진',
+                        image: user.image,
+                        notificated: 'true'
                     },
                 })
             }
@@ -107,11 +106,9 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                     data: {
                         chatRoomId: chatRoom.id.toString(),
                         type: 'chat',
-                    },
-                    notification: {
                         title: user.name,
-                        body: input.message || '사진',
-                        imageUrl: user.image
+                        message: input.message || '사진',
+                        image: user.image,
                     },
                 })
             }
