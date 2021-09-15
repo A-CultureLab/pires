@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["orderByAggregateGroup", "selectRelationCount", "orderByRelation"]
+  previewFeatures = ["filterJson"]
 }
 
 datasource db {

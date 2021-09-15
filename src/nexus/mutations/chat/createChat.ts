@@ -4,6 +4,7 @@ import getIUser from "../../../utils/getIUser"
 import { userMessaging } from "../../../lib/firebase";
 import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../../subscriptions";
 import apolloError from "../../../utils/apolloError";
+import dayjs from "dayjs";
 
 const CreateChatInput = inputObjectType({
     name: 'CreateChatInput',
@@ -27,9 +28,14 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
         const chatRoom = await ctx.prisma.chatRoom.findUnique({
             where: { id: input.chatRoomId },
             include: {
-                userChatRoomInfos: { include: { user: true } }
+                userChatRoomInfos: {
+                    include: {
+                        user: true,
+                    }
+                }
             }
         })
+
         if (!chatRoom) throw apolloError('유효하지 않은 채팅방입니다', 'INVALID_ID')
 
         const chatRoomUsers = chatRoom.userChatRoomInfos.map(v => v.user)
@@ -75,45 +81,36 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
         ctx.pubsub.publish(CHAT_CREATED, chat)
         ctx.pubsub.publish(CHAT_ROOM_UPDATED, chatRoom)
 
-        const notificationOnUsers = userChatRoomInfos
-            .filter(v => v.notificated) // notificated true 상태인 유저로 필터링
-            .filter(v => v.userId !== user.id) // 발신자 제외
-            .filter(v => !!v.user.fcmToken) // fcmToken 없는 유저 제외
-        const notificationOffUsers = userChatRoomInfos
-            .filter(v => !v.notificated) // notificated false 상태인 유저로 필터링
+        const notReadUserInfos = userChatRoomInfos
             .filter(v => v.userId !== user.id) // 발신자 제외
             .filter(v => !!v.user.fcmToken) // fcmToken 없는 유저 제외
 
-        try {
-            // Notification On Users // 유음으로 보냄
-            if (notificationOnUsers.length > 0) {
-                await userMessaging.sendMulticast({
-                    tokens: notificationOnUsers.map(v => v.user.fcmToken || ''),
+        for (const userInfo of notReadUserInfos) {
+            try {
+                const count = await ctx.prisma.chat.count({
+                    where: {
+                        notReadUserChatRoomInfos: { some: { userId: userInfo.user.id } }
+                    }
+                })
+                await userMessaging.send({
+                    token: userInfo.user.fcmToken || '',
                     data: {
                         chatRoomId: chatRoom.id.toString(),
                         type: 'chat',
                         title: user.name,
                         message: input.message || '사진',
+                        subText: dayjs(chat.createdAt).format('a h:mm'),
                         image: user.image,
-                        notificated: 'true'
+                        notReadChatCount: count.toString() || '1',
+                        notificated: userInfo.notificated ? 'true' : '',
                     },
+                    android: {
+                        priority: 'high'
+                    }
                 })
+            } catch (error: any) {
+                throw apolloError(error.message, error.code, { notification: false })
             }
-            // Notification Off Users // 무음 메시지
-            if (notificationOffUsers.length > 0) {
-                await userMessaging.sendMulticast({
-                    tokens: notificationOffUsers.map(v => v.user.fcmToken || ''),
-                    data: {
-                        chatRoomId: chatRoom.id.toString(),
-                        type: 'chat',
-                        title: user.name,
-                        message: input.message || '사진',
-                        image: user.image,
-                    },
-                })
-            }
-        } catch (error: any) {
-            throw apolloError(error.message, error.code, { notification: false })
         }
 
 

@@ -7,7 +7,10 @@ import expressErrorLogger from './lib/expressErrorLogger'
 import apolloFormatError from './lib/apolloFormatError'
 import schema from './nexus'
 import { createServer } from 'http'
-import { ApolloLogPlugin } from 'apollo-log';
+import 'dayjs/locale/ko'
+import dayjs from 'dayjs';
+
+dayjs.locale('ko')
 
 
 require('dotenv').config()
