@@ -5,6 +5,7 @@ import { userMessaging } from "../../../lib/firebase";
 import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../../subscriptions";
 import apolloError from "../../../utils/apolloError";
 import dayjs from "dayjs";
+import { messaging } from "firebase-admin";
 
 const CreateChatInput = inputObjectType({
     name: 'CreateChatInput',
@@ -105,11 +106,32 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                         notificated: userInfo.notificated ? 'true' : '',
                     },
                     android: {
-                        priority: 'high'
+                        notification: {
+                            title: user.name,
+                            body: input.message || '사진',
+                            channelId: userInfo.notificated ? 'chat' : 'chat_no_notificated',
+                            priority: 'high',
+                        }
+                    },
+                    apns: {
+                        payload: {
+                            aps: {
+                                alert: {
+                                    title: user.name,
+                                    body: input.message || '사진'
+                                },
+                                sound: userInfo.notificated ? 'true' : undefined,
+                                badge: count,
+                                threadId: chatRoom.id,
+                                category: 'chat',
+                                mutableContent: true,
+                                contentAvailable: true
+                            }
+                        }
                     }
                 })
             } catch (error: any) {
-                throw apolloError(error.message, error.code, { notification: false })
+                console.log(error)
             }
         }
 
