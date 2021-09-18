@@ -97,9 +97,10 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                     token: userInfo.user.fcmToken || '',
                     data: {
                         chatRoomId: chatRoom.id.toString(),
+                        chatId: chat.id,
                         type: 'chat',
                         title: user.name,
-                        message: input.message || '사진',
+                        message: chat.message || '사진',
                         subText: dayjs(chat.createdAt).format('a h:mm'),
                         image: user.image,
                         notReadChatCount: count.toString() || '1',
@@ -108,7 +109,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                     android: {
                         notification: {
                             title: user.name,
-                            body: input.message || '사진',
+                            body: chat.message || '사진',
                             channelId: userInfo.notificated ? 'chat' : 'chat_no_notificated',
                             priority: 'high',
                         }
@@ -118,7 +119,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                             aps: {
                                 alert: {
                                     title: user.name,
-                                    body: input.message || '사진'
+                                    body: chat.message || '사진'
                                 },
                                 sound: userInfo.notificated ? 'true' : undefined,
                                 badge: count,
