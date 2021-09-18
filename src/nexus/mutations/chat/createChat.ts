@@ -112,6 +112,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                             channelId: userInfo.notificated ? 'chat' : 'chat_no_notificated',
                             priority: 'high',
                             imageUrl: user.image,
+                            icon: 'ic_notification',
                             // icon: user.image,
                             notificationCount: count,
                             tag: chatRoom.id
