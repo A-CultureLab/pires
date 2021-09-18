@@ -17,7 +17,7 @@ CREATE TABLE `User` (
     `fcmToken` VARCHAR(191),
     `withdrawDate` DATETIME(3),
     `withdrawReason` TEXT,
-    `addressId` INTEGER,
+    `addressId` VARCHAR(191) NOT NULL,
 
     UNIQUE INDEX `User.email_unique`(`email`),
     UNIQUE INDEX `User.uniqueKey_unique`(`uniqueKey`),
@@ -27,8 +27,50 @@ CREATE TABLE `User` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `UserChatRoomInfo` (
+    `id` VARCHAR(191) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL,
+    `joinedAt` DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    `bookmarked` BOOLEAN NOT NULL DEFAULT false,
+    `notificated` BOOLEAN NOT NULL DEFAULT true,
+    `blocked` BOOLEAN NOT NULL DEFAULT false,
+    `userId` VARCHAR(191) NOT NULL,
+    `chatRoomId` VARCHAR(191) NOT NULL,
+
+    INDEX `UserChatRoomInfo.bookmarked_notificated_joinedAt_index`(`bookmarked`, `notificated`, `joinedAt`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ChatRoom` (
+    `id` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `recentChatCreatedAt` DATETIME(3),
+    `type` ENUM('private', 'group') NOT NULL,
+
+    INDEX `ChatRoom.recentChatCreatedAt_index`(`recentChatCreatedAt`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Chat` (
+    `id` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `message` VARCHAR(191),
+    `image` VARCHAR(191),
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `userId` VARCHAR(191) NOT NULL,
+    `chatRoomId` VARCHAR(191) NOT NULL,
+
+    INDEX `Chat.createdAt_userId_chatRoomId_index`(`createdAt`, `userId`, `chatRoomId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Address` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `area1Id` VARCHAR(191) NOT NULL,
@@ -84,7 +126,7 @@ CREATE TABLE `Land` (
 
 -- CreateTable
 CREATE TABLE `Pet` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `orderKey` INTEGER NOT NULL,
@@ -105,59 +147,57 @@ CREATE TABLE `Pet` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `ChatRoom` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+CREATE TABLE `Report` (
+    `id` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
-    `recentChatCreatedAt` DATETIME(3),
+    `reason` TEXT NOT NULL,
+    `reporterId` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191),
+    `chatId` VARCHAR(191),
+    `chatRoomId` VARCHAR(191),
 
-    INDEX `ChatRoom.recentChatCreatedAt_index`(`recentChatCreatedAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Chat` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-    `message` VARCHAR(191),
-    `image` VARCHAR(191),
-    `userId` VARCHAR(191) NOT NULL,
-    `chatRoomId` INTEGER NOT NULL,
-
-    INDEX `Chat.createdAt_userId_chatRoomId_index`(`createdAt`, `userId`, `chatRoomId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `_ChatRoomToUser` (
-    `A` INTEGER NOT NULL,
+CREATE TABLE `_notReadChatsNotReadUserChatRoomInfos` (
+    `A` VARCHAR(191) NOT NULL,
     `B` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `_ChatRoomToUser_AB_unique`(`A`, `B`),
-    INDEX `_ChatRoomToUser_B_index`(`B`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `_notReadChatsNotReadUsers` (
-    `A` INTEGER NOT NULL,
-    `B` VARCHAR(191) NOT NULL,
-
-    UNIQUE INDEX `_notReadChatsNotReadUsers_AB_unique`(`A`, `B`),
-    INDEX `_notReadChatsNotReadUsers_B_index`(`B`)
+    UNIQUE INDEX `_notReadChatsNotReadUserChatRoomInfos_AB_unique`(`A`, `B`),
+    INDEX `_notReadChatsNotReadUserChatRoomInfos_B_index`(`B`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `_notReadChatsNotReadUsers` ADD FOREIGN KEY (`A`) REFERENCES `Chat`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `UserChatRoomInfo` ADD FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `_notReadChatsNotReadUsers` ADD FOREIGN KEY (`B`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `User` ADD FOREIGN KEY (`addressId`) REFERENCES `Address`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `UserChatRoomInfo` ADD FOREIGN KEY (`chatRoomId`) REFERENCES `ChatRoom`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Pet` ADD FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Report` ADD FOREIGN KEY (`reporterId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Report` ADD FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Report` ADD FOREIGN KEY (`chatId`) REFERENCES `Chat`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Report` ADD FOREIGN KEY (`chatRoomId`) REFERENCES `ChatRoom`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `User` ADD FOREIGN KEY (`addressId`) REFERENCES `Address`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_notReadChatsNotReadUserChatRoomInfos` ADD FOREIGN KEY (`A`) REFERENCES `Chat`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_notReadChatsNotReadUserChatRoomInfos` ADD FOREIGN KEY (`B`) REFERENCES `UserChatRoomInfo`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Address` ADD FOREIGN KEY (`area1Id`) REFERENCES `Area1`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -176,9 +216,3 @@ ALTER TABLE `Chat` ADD FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE 
 
 -- AddForeignKey
 ALTER TABLE `Chat` ADD FOREIGN KEY (`chatRoomId`) REFERENCES `ChatRoom`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_ChatRoomToUser` ADD FOREIGN KEY (`A`) REFERENCES `ChatRoom`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_ChatRoomToUser` ADD FOREIGN KEY (`B`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -3,6 +3,7 @@ import compareVersions from "compare-versions";
 import { nanoid } from "nanoid";
 import { nonNull, objectType, queryField, stringArg } from "nexus"
 import option from '../../../option.json'
+import { USER_CERTIFICATION_WHITE_LIST } from "../../values";
 
 export const UserCertificationInfo = objectType({
     name: 'UserCertificationInfo',
@@ -41,7 +42,7 @@ export const userCertificationInfo = queryField(t => t.nonNull.field('userCertif
         const certificationsInfo = getCertifications.data.response;
 
         return {
-            uniqueKey: certificationsInfo.unique_key === '55dp0SBnd/4/g/eZi5GbE7SIJiQZNcDKqagvOQzlPsUBof6e7+Q5fecNFSD4H0iAnmBfzsfLsWAM47fpdhn0tQ==' ? nanoid() : certificationsInfo.unique_key, // white list
+            uniqueKey: USER_CERTIFICATION_WHITE_LIST.includes(certificationsInfo.unique_key) ? nanoid() : certificationsInfo.unique_key, // white list
             name: certificationsInfo.name,
             birth: new Date(certificationsInfo.birth * 1000),
             gender: certificationsInfo.gender,
