@@ -5,7 +5,6 @@ import { userMessaging } from "../../../lib/firebase";
 import { CHAT_CREATED, CHAT_ROOM_UPDATED } from "../../subscriptions";
 import apolloError from "../../../utils/apolloError";
 import dayjs from "dayjs";
-import { messaging } from "firebase-admin";
 
 const CreateChatInput = inputObjectType({
     name: 'CreateChatInput',
@@ -96,7 +95,7 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                 await userMessaging.send({
                     token: userInfo.user.fcmToken || '',
                     data: {
-                        chatRoomId: chatRoom.id.toString(),
+                        chatRoomId: chatRoom.id,
                         chatId: chat.id,
                         type: 'chat',
                         title: user.name,
@@ -112,6 +111,10 @@ export const createChat = mutationField(t => t.nonNull.field('createChat', {
                             body: chat.message || '사진',
                             channelId: userInfo.notificated ? 'chat' : 'chat_no_notificated',
                             priority: 'high',
+                            imageUrl: user.image,
+                            // icon: user.image,
+                            notificationCount: count,
+                            tag: chatRoom.id
                         }
                     },
                     apns: {
