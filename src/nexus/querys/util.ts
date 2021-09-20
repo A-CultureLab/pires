@@ -40,7 +40,7 @@ export const userCertificationInfo = queryField(t => t.nonNull.field('userCertif
         });
 
         const certificationsInfo = getCertifications.data.response;
-
+        // console.log(certificationsInfo)
         return {
             uniqueKey: USER_CERTIFICATION_WHITE_LIST.includes(certificationsInfo.unique_key) ? nanoid() : certificationsInfo.unique_key, // white list
             name: certificationsInfo.name,
