@@ -104,7 +104,7 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
             }
         })
         // 파이어베이스 유저 삭제
-        await userAuth.deleteUser(user.id)
+        await userAuth.deleteUser(user.snsLoginId)
 
         // 카카오 로그인이라면 연결 해제
         if (user.id.includes('KAKAO')) {
