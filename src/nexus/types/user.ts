@@ -28,6 +28,11 @@ export const User = objectType({
         t.model.userChatRoomInfos()
         t.model.reports()
         t.model.myReports()
+        t.model.posts()
+        t.model.notificatedPosts()
+        t.model.likedPosts()
+        t.model.postComments()
+        t.model.postReplyComment()
         t.nonNull.int('notReadChatCount', {
             resolve: async ({ id }, { }, ctx) => {
                 return await ctx.prisma.chat.count({
