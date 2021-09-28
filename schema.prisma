@@ -49,6 +49,11 @@ model User {
   chats             Chat[]
   reports           Report[]           @relation("userToReports") // 내가 신고 당한 내역
   myReports         Report[]           @relation("userToMyReports") // 내 신고내역
+  posts             Post[]             @relation("UserToPost")
+  notificatedPosts  Post[]             @relation("UserToPostNotificatedUsers")
+  likedPosts        Post[]             @relation("UserToPostLikedUsers")
+  postComments      PostComment[]
+  postReplyComment  PostReplyComment[]
 
   @@index([birth, gender])
 }
@@ -222,6 +227,74 @@ model Report {
   userId     String?
   chatId     String?
   chatRoomId String?
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  type    PostType
+  content String   @db.Text
+
+  user             User          @relation(fields: [userId], references: [id], "UserToPost")
+  images           PostImage[]
+  likedUsers       User[]        @relation("UserToPostLikedUsers")
+  notificatedUsers User[]        @relation("UserToPostNotificatedUsers")
+  comments         PostComment[]
+
+  userId String
+
+  @@index([type, createdAt])
+}
+
+model PostImage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  url String
+
+  post Post? @relation(fields: [postId], references: [id])
+
+  postId String?
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  content String  @db.Text
+  image   String?
+
+  user          User               @relation(fields: [userId], references: [id])
+  post          Post               @relation(fields: [postId], references: [id])
+  replyComments PostReplyComment[]
+
+  postId String
+  userId String
+
+  @@index([createdAt])
+}
+
+model PostReplyComment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  content String  @db.Text
+  image   String?
+
+  user        User        @relation(fields: [userId], references: [id])
+  postComment PostComment @relation(fields: [postCommentId], references: [id])
+
+  userId        String
+  postCommentId String
+}
+
+enum PostType {
+  free
+  walk
 }
 
 enum Gender {
