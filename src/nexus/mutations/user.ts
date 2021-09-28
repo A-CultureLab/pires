@@ -39,8 +39,8 @@ export const signup = mutationField(t => t.nonNull.field('signup', {
         const { uid: id } = await userAuth.verifyIdToken(token)
         return ctx.prisma.user.create({
             data: {
-                id,
                 ...data,
+                snsLoginId: id,
                 addressId: undefined,
                 address: { connect: { id: data.addressId } }
             }
@@ -93,13 +93,13 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
         const updatedUser = await ctx.prisma.user.update({
             where: { id: user.id },
             data: {
-                id: 'deleted:' + nanoid(),
+                snsLoginId: 'deleted:' + nanoid(),
+                email: 'deleted:' + nanoid(),
+                uniqueKey: 'deleted:' + nanoid(),
                 name: '탈퇴한 사용자',
                 image: 'https://static.thenounproject.com/png/574748-200.png',
                 withdrawDate: new Date(),
                 withdrawReason: reason,
-                email: 'deleted:' + nanoid(),
-                uniqueKey: 'deleted:' + nanoid(),
                 fcmToken: null
             }
         })

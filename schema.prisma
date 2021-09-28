@@ -21,7 +21,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   // get from sns login
-  id                 String    @id
+  id                 String    @id @default(cuid())
+  snsLoginId         String    @unique
   email              String    @unique
   image              String
   // get from user certification

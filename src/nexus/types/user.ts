@@ -6,6 +6,7 @@ export const User = objectType({
         t.model.id()
         t.model.createdAt()
         t.model.updatedAt()
+        t.model.snsLoginId()
         t.model.email()
         t.model.uniqueKey()
         t.model.name()

@@ -2,6 +2,7 @@ import { prisma } from "../context"
 import faker from 'faker/locale/ko'
 import dayjs from "dayjs"
 import { Gender, PetType } from "@prisma/client"
+import { nanoid } from "nanoid"
 
 const NUMBER = 450
 
@@ -17,11 +18,13 @@ const createDummyUsers = async () => {
             const user = await prisma.user.create({
                 data: {
                     id: faker.datatype.uuid(),
+                    snsLoginId: faker.datatype.uuid(),
                     agreementDate: new Date(),
                     birth: faker.date.between(dayjs().set('year', 1970).toDate(), dayjs().set('year', 2010).toDate()),
                     email: faker.datatype.uuid(),
                     gender: faker.random.arrayElement([Gender.female, Gender.male]),
                     image: faker.image.avatar(),
+                    inflow: faker.datatype.string(10),
                     introduce: faker.lorem.lines(4),
                     name: faker.name.lastName() + faker.name.firstName(),
                     uniqueKey: faker.datatype.uuid(),

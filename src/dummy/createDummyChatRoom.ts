@@ -28,4 +28,4 @@ const createDummyChatRoom = async () => {
 
 }
 
-createDummyChatRoom()
+// createDummyChatRoom()

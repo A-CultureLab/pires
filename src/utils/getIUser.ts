@@ -21,10 +21,10 @@ export const getIUser = async <B = false>(ctx: Context, ignoreError?: B): Promis
     token = token.replace('Bearer ', '')
 
 
-    const { uid: id } = await userAuth.verifyIdToken(token)
+    const { uid } = await userAuth.verifyIdToken(token)
 
     // uid에 해당하는 user filed 가 없다면 유저를 생성
-    const user = await prisma.user.findFirst({ where: { id } })
+    const user = await prisma.user.findUnique({ where: { snsLoginId: uid } })
     // @ts-ignore
     return user
 }
