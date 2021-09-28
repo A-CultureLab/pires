@@ -18,7 +18,7 @@ export const SignupInput = inputObjectType({
         t.nonNull.field('birth', { type: 'DateTime' })
 
         t.nonNull.string('addressId')
-        t.nullable.string('instagramId')
+        t.nonNull.string('inflow')
         t.nonNull.string('introduce')
         t.nonNull.field('agreementDate', { type: 'DateTime' })
         t.nullable.field('marketingPushDate', { type: 'DateTime' })
@@ -53,7 +53,6 @@ export const UpdateUserInput = inputObjectType({
     definition(t) {
         t.nonNull.string('image')
         t.nonNull.string('addressId')
-        t.nullable.string('instagramId')
         t.nonNull.string('introduce')
     }
 })
@@ -99,7 +98,6 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
                 image: 'https://static.thenounproject.com/png/574748-200.png',
                 withdrawDate: new Date(),
                 withdrawReason: reason,
-                birth: new Date(),
                 email: 'deleted:' + nanoid(),
                 uniqueKey: 'deleted:' + nanoid(),
                 fcmToken: null

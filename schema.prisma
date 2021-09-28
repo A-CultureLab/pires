@@ -30,7 +30,7 @@ model User {
   gender             Gender
   birth              DateTime
   //
-  instagramId        String?
+  inflow             String // 유입 경로
   introduce          String    @db.Text
   agreementDate      DateTime // 약관동의 일자
   marketingPushDate  DateTime? // 마케팅 푸시 수신일자

@@ -39,7 +39,7 @@ export const userCertificationInfo = queryField(t => t.nonNull.field('userCertif
             headers: { "Authorization": access_token } // 인증 토큰 Authorization header에 추가
         });
 
-        const certificationsInfo = getCertifications.data.response;
+        const certificationsInfo = getCertifications.data.response
         // console.log(certificationsInfo)
         return {
             uniqueKey: USER_CERTIFICATION_WHITE_LIST.includes(certificationsInfo.unique_key) ? nanoid() : certificationsInfo.unique_key, // white list
