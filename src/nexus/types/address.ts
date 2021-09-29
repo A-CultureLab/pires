@@ -1,4 +1,6 @@
+import haversineDistance from "haversine-distance";
 import { inputObjectType, objectType } from "nexus";
+import getIUser from "../../utils/getIUser";
 
 export const Address = objectType({
     name: 'Address',
@@ -20,6 +22,39 @@ export const Address = objectType({
         //
 
         t.model.user()
+
+        t.nonNull.string('adressShort', {
+            resolve: ({ area2Id, area3Id }) => {
+                return area2Id
+            }
+        })
+        t.nullable.float('distance', {
+            resolve: async ({ id }, { }, ctx) => {
+                const iUser = await getIUser(ctx, true)
+                if (!iUser) return null
+
+                const targetAddress = await ctx.prisma.address.findUnique({
+                    where: { id },
+                    include: { land: true }
+                })
+                const address = await ctx.prisma.address.findUnique({
+                    where: { id: iUser.addressId },
+                    include: { land: true }
+                })
+                if (!targetAddress) return null
+                if (!address) return null
+
+                const meter = haversineDistance({
+                    latitude: targetAddress.land.latitude,
+                    longitude: targetAddress.land.longitude
+                }, {
+                    latitude: address.land.latitude,
+                    longitude: address.land.longitude
+                })
+
+                return meter
+            }
+        })
     }
 })
 
