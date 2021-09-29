@@ -1,4 +1,5 @@
-import { inputObjectType, mutationField, nonNull } from "nexus"
+import { booleanArg, inputObjectType, mutationField, nonNull, stringArg } from "nexus"
+import apolloError from "../../utils/apolloError"
 import getIUser from "../../utils/getIUser"
 
 export const CreatePostInput = inputObjectType({
@@ -10,7 +11,7 @@ export const CreatePostInput = inputObjectType({
     }
 })
 
-export const createPost = mutationField(t => t.field('createPost', {
+export const createPost = mutationField(t => t.nonNull.field('createPost', {
     type: 'Post',
     args: {
         data: nonNull(CreatePostInput)
@@ -28,5 +29,34 @@ export const createPost = mutationField(t => t.field('createPost', {
                 user: { connect: { id: user.id } }
             }
         })
+    }
+}))
+
+export const likePost = mutationField(t => t.nonNull.field('likePost', {
+    type: 'Post',
+    args: {
+        id: nonNull(stringArg()),
+        like: nonNull(booleanArg())
+    },
+    resolve: async (_, { like, id }, ctx) => {
+
+        const user = await getIUser(ctx)
+        try {
+            const post = await ctx.prisma.post.update({
+                where: { id },
+                data: {
+                    likedUsers: {
+                        connect: like ? { id: user.id } : undefined,
+                        disconnect: !like ? { id: user.id } : undefined
+                    }
+                }
+            })
+
+            return post
+        } catch (error) {
+            const post = await ctx.prisma.post.findUnique({ where: { id } })
+            if (!post) throw apolloError('존재하지 않는 게시물입니다.', 'INVALID_ID')
+            return post
+        }
     }
 }))

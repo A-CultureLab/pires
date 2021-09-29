@@ -27,5 +27,28 @@ export const Post = objectType({
                 return commentCount + replyCommentCount
             }
         })
+        t.nonNull.int('likeCount', {
+            resolve: async ({ id }, { }, ctx) => {
+                return ctx.prisma.user.count({
+                    where: { likedPosts: { some: { id } } }
+                })
+            }
+        })
+        t.nonNull.boolean('isILiked', {
+            resolve: async ({ id }, { }, ctx) => {
+                const user = await getIUser(ctx, true)
+                if (!user) return false
+                const post = await ctx.prisma.post.findUnique({
+                    where: { id },
+                    include: {
+                        likedUsers: {
+                            where: { id: user.id }
+                        }
+                    }
+                })
+                if (!post) return false
+                return !!post.likedUsers.length
+            }
+        })
     }
 })

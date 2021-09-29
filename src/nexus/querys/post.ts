@@ -29,6 +29,7 @@ export const posts = queryField(t => t.nonNull.list.nonNull.field('posts', {
                     }
                 }
             } : undefined,
+            orderBy: { createdAt: 'desc' },
             take: take || 0,
             skip: skip || 0
         })
