@@ -60,3 +60,24 @@ export const likePost = mutationField(t => t.nonNull.field('likePost', {
         }
     }
 }))
+
+export const deletePost = mutationField(t => t.nonNull.field('deletePost', {
+    type: 'Post',
+    args: {
+        id: nonNull(stringArg())
+    },
+    resolve: async (_, { id }, ctx) => {
+
+        const user = await getIUser(ctx)
+        const post = await ctx.prisma.post.findUnique({
+            where: { id: id }
+        })
+
+        if (!post) throw apolloError('유효하지 않은 게시물 ID 입니다', 'INVALID_ID')
+        if (user.id !== post?.userId) throw apolloError('삭제 권한 없음', 'NO_PERMISSION')
+
+        return ctx.prisma.post.delete({
+            where: { id }
+        })
+    }
+}))

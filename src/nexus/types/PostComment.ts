@@ -13,5 +13,22 @@ export const PostComment = objectType({
         t.model.replyComments()
         t.model.postId()
         t.model.userId()
+        t.nonNull.int('postReplyCommentCount', {
+            resolve: ({ id }, { }, ctx) => {
+                return ctx.prisma.postReplyComment.count({
+                    where: { postCommentId: id }
+                })
+            }
+        })
+        t.nonNull.list.nonNull.field('recentPostReplyComments', {
+            type: 'PostReplyComment',
+            resolve: ({ id }, { }, ctx) => {
+                return ctx.prisma.postReplyComment.findMany({
+                    where: { postCommentId: id },
+                    orderBy: { content: 'desc' },
+                    take: 3
+                })
+            }
+        })
     }
 })
