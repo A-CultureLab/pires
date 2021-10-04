@@ -32,6 +32,48 @@ export const createPost = mutationField(t => t.nonNull.field('createPost', {
     }
 }))
 
+export const UpdatePostInput = inputObjectType({
+    name: 'UpdatePostInput',
+    definition(t) {
+        t.nonNull.string('id')
+        t.nonNull.string('content')
+        t.nonNull.field('type', { type: 'PostType' })
+        t.nonNull.list.nonNull.string('images')
+    }
+})
+
+export const updatePost = mutationField(t => t.nonNull.field('updatePost', {
+    type: 'Post',
+    args: {
+        data: nonNull(UpdatePostInput)
+    },
+    resolve: async (_, { data: _data }, ctx) => {
+
+        const { id, images, ...data } = _data
+
+        const user = await getIUser(ctx)
+
+        const prePost = await ctx.prisma.post.findUnique({
+            where: { id }
+        })
+
+        if (prePost?.userId !== user.id) throw apolloError("작성자만 수정할 수 있습니다.", "NO_PERMISSION")
+
+        // 기존의 이미지 삭제
+        await ctx.prisma.postImage.deleteMany({
+            where: { postId: id }
+        })
+
+        return ctx.prisma.post.update({
+            where: { id },
+            data: {
+                ...data,
+                images: { create: images.map(v => ({ url: v })) },
+            }
+        })
+    }
+}))
+
 export const likePost = mutationField(t => t.nonNull.field('likePost', {
     type: 'Post',
     args: {
