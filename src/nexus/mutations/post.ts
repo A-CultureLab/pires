@@ -118,6 +118,19 @@ export const deletePost = mutationField(t => t.nonNull.field('deletePost', {
         if (!post) throw apolloError('유효하지 않은 게시물 ID 입니다', 'INVALID_ID')
         if (user.id !== post?.userId) throw apolloError('삭제 권한 없음', 'NO_PERMISSION')
 
+        // 이미지 삭제
+        await ctx.prisma.postImage.deleteMany({
+            where: { postId: id }
+        })
+        // 답글 삭제
+        await ctx.prisma.postReplyComment.deleteMany({
+            where: { postComment: { postId: id } }
+        })
+        // 댓글 삭제
+        await ctx.prisma.postComment.deleteMany({
+            where: { postId: id }
+        })
+        // 게시물 삭제
         return ctx.prisma.post.delete({
             where: { id }
         })
