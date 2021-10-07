@@ -66,7 +66,7 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
             addressGroupBy.map((data) =>
                 (async () => {
                     const addressId = data[groupById]
-                    const groupByAddressId = groupByAddressIdGenerator.generate(groupById, addressId)
+                    const groupByAddressId = groupByAddressIdGenerator.generate(groupById, addressId) // 아이디로 사용할 임의의 해시값생성
 
                     const pets = await ctx.prisma.pet.findMany({
                         where: { user: { address: { [groupById]: addressId } } },
@@ -80,7 +80,7 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
                     //@ts-ignore
                     const area = await ctx.prisma[groupBy].findUnique({ where: { id: addressId } })
 
-                    const groupName = (area?.buildingName || area?.addressName) || addressId
+                    const groupName = area.name || (area?.buildingName || area?.addressName)
                     const region = {
                         latitude: area?.latitude || 0,
                         longitude: area?.longitude || 0

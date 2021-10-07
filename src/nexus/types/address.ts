@@ -114,7 +114,7 @@ export const Land = objectType({
 
         t.model.addresses()
 
-        t.nonNull.string('fullName', {
+        t.nonNull.string('name', {
             resolve: ({ addressName, buildingName }) => {
                 return buildingName || addressName
             }
