@@ -5,7 +5,7 @@
     "studio": "prisma studio",
     "build": "tsc -b --force",
     "build:silent": "cross-env NODE_ENV=production npm run generate:prisma && tsc-silent -p tsconfig.json --suppress @/src",
-    "start": " cross-env NODE_ENV=production node dist/src/server",
+    "start": "cross-env NODE_ENV=production npm run migrate:deploy && node dist/src/server",
     "pm2": "cross-env NODE_ENV=production pm2-runtime start pm2.json",
     "clean": "rm -rf node_modules && rm -rf yarn.lock && rm -rf dist && rm -rf generated",
     "migrate": "prisma migrate dev",

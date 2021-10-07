@@ -24,7 +24,7 @@ COPY schema.prisma .
 # COPY .env .
 
 RUN yarn --production
-RUN yarn migrate:deploy
+# RUN yarn migrate:deploy
 RUN yarn generate:prisma
 
 EXPOSE 8080
