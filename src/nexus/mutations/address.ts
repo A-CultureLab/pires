@@ -32,6 +32,10 @@ export const createAddress = mutationField(t => t.nullable.field('createAddress'
         const area2 = data.results[0].region.area2
         const area3 = data.results[0].region.area3
 
+        const area1Id = area1.name
+        const area2Id = area1Id + '@' + area2.name
+        const area3Id = area2Id + '@' + area3.name
+
         // Address name generate
         let addressName = ''
         addressName += land.name
@@ -39,16 +43,16 @@ export const createAddress = mutationField(t => t.nullable.field('createAddress'
         if (land.number2) addressName += ' ' + land.number2
 
         const buildingName = land.addition0.value
-        const landId = addressName + '@' + buildingName // ! Hash
-
+        const landId = area3Id + '@' + addressName + '@' + buildingName // ! Hash
 
         const address = ctx.prisma.address.create({
             data: {
                 area1: {
                     connectOrCreate: {
-                        where: { id: area1.name },
+                        where: { id: area1Id },
                         create: {
-                            id: area1.name,
+                            id: area1Id,
+                            name: area1.name,
                             longitude: area1.coords.center.x,
                             latitude: area1.coords.center.y
                         }
@@ -56,9 +60,10 @@ export const createAddress = mutationField(t => t.nullable.field('createAddress'
                 },
                 area2: {
                     connectOrCreate: {
-                        where: { id: area2.name },
+                        where: { id: area2Id },
                         create: {
-                            id: area2.name,
+                            id: area2Id,
+                            name: area2.name,
                             longitude: area2.coords.center.x,
                             latitude: area2.coords.center.y
                         }
@@ -66,9 +71,10 @@ export const createAddress = mutationField(t => t.nullable.field('createAddress'
                 },
                 area3: {
                     connectOrCreate: {
-                        where: { id: area3.name },
+                        where: { id: area3Id },
                         create: {
-                            id: area3.name,
+                            id: area3Id,
+                            name: area3.name,
                             longitude: area3.coords.center.x,
                             latitude: area3.coords.center.y
                         }

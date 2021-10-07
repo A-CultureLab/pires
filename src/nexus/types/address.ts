@@ -24,8 +24,10 @@ export const Address = objectType({
         t.model.user()
 
         t.nonNull.string('adressShort', {
-            resolve: ({ area2Id, area3Id }) => {
-                return area2Id
+            resolve: async ({ area2Id }, _, ctx) => {
+                const area2 = await ctx.prisma.area2.findUnique({ where: { id: area2Id } })
+                if (!area2) throw new Error
+                return area2.name
             }
         })
         t.nullable.float('distance', {
@@ -63,6 +65,7 @@ export const Area1 = objectType({
     definition(t) {
         t.model.id()
 
+        t.model.name()
         t.model.latitude()
         t.model.longitude()
 
@@ -75,6 +78,7 @@ export const Area2 = objectType({
     definition(t) {
         t.model.id()
 
+        t.model.name()
         t.model.latitude()
         t.model.longitude()
 
@@ -87,6 +91,7 @@ export const Area3 = objectType({
     definition(t) {
         t.model.id()
 
+        t.model.name()
         t.model.latitude()
         t.model.longitude()
 

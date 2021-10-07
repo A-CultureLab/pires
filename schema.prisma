@@ -138,43 +138,46 @@ model Address {
 
 model Area1 {
   // 도/시
-  id String @id
+  id String @id //Area1
 
+  name      String
   latitude  Float
   longitude Float
 
   addresses Address[]
 
-  @@index([id, latitude, longitude])
+  @@index([name, latitude, longitude])
 }
 
 model Area2 {
   // 시/군/구
-  id String @id
+  id String @id // Area1 + @ + Area2
 
+  name      String
   latitude  Float
   longitude Float
 
   addresses Address[]
 
-  @@index([id, latitude, longitude])
+  @@index([name, latitude, longitude])
 }
 
 model Area3 {
   // 읍/면/동
-  id String @id
+  id String @id // Area1 + @ + Area2 + @ + Area3
 
+  name      String
   latitude  Float
   longitude Float
 
   addresses Address[]
 
-  @@index([id, latitude, longitude])
+  @@index([name, latitude, longitude])
 }
 
 model Land {
   // 상세주소
-  id String @id // addressName + '@' + buildingName
+  id String @id // Area1 + @ + Area2 + @ + Area3 + @ + addressName + '@' + buildingName
 
   addressName  String // 세부주소 주소 예) 용구대로 112-3
   buildingName String // 건물 이름 예) 용산빌딩
