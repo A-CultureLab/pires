@@ -89,6 +89,26 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
         await ctx.prisma.pet.deleteMany({
             where: { userId: user.id }
         })
+        // 내가쓴 답글 삭제
+        await ctx.prisma.postReplyComment.deleteMany({
+            where: { userId: user.id }
+        })
+        // 내가쓴 댓글에 답글 삭제
+        await ctx.prisma.postReplyComment.deleteMany({
+            where: { postComment: { userId: user.id } }
+        })
+        // 내가쓴 댓글 삭제
+        await ctx.prisma.postComment.deleteMany({
+            where: { userId: user.id }
+        })
+        // 내가쓴 게시글에 댓글 삭제
+        await ctx.prisma.postComment.deleteMany({
+            where: { post: { userId: user.id } }
+        })
+        // 내가쓴 게시글 삭제
+        await ctx.prisma.post.deleteMany({
+            where: { userId: user.id }
+        })
         // 유저 정보 더미데이터로 덮어씌우기
         const updatedUser = await ctx.prisma.user.update({
             where: { id: user.id },
