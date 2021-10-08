@@ -12,5 +12,17 @@ export const PostReplyComment = objectType({
         t.model.postComment()
         t.model.userId()
         t.model.postCommentId()
+        t.nonNull.boolean('isPoster', {
+            resolve: async ({ postCommentId, userId }, _, ctx) => {
+                const postComment = await ctx.prisma.postComment.findUnique({
+                    where: { id: postCommentId },
+                    include: {
+                        post: true
+                    }
+                })
+                if (!postComment) throw new Error("isPoster")
+                return postComment.post.userId === userId
+            }
+        })
     }
 })

@@ -1,4 +1,5 @@
 import { objectType } from "nexus";
+import apolloError from "../../utils/apolloError";
 
 export const PostComment = objectType({
     name: 'PostComment',
@@ -13,6 +14,13 @@ export const PostComment = objectType({
         t.model.replyComments()
         t.model.postId()
         t.model.userId()
+        t.nonNull.boolean('isPoster', {
+            resolve: async ({ postId, userId }, _, ctx) => {
+                const post = await ctx.prisma.post.findUnique({ where: { id: postId } })
+                if (!post) throw new Error("isPoster")
+                return post.userId === userId
+            }
+        })
         t.nonNull.int('postReplyCommentCount', {
             resolve: ({ id }, { }, ctx) => {
                 return ctx.prisma.postReplyComment.count({
