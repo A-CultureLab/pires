@@ -48,7 +48,7 @@ router.post('/crawling', async (req, res, next) => {
                     } catch (error) { /* 링크 중복 오류  로그수집 X */ }
                 }
             } catch (error) {
-                console.error('Naver open api error')
+                next(error)
             }
         }
         return res.send()
