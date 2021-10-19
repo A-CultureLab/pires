@@ -10,6 +10,8 @@ import { createServer } from 'http'
 import 'dayjs/locale/ko'
 import dayjs from 'dayjs';
 
+import newsRouter from './routes/news'
+
 dayjs.locale('ko')
 
 
@@ -41,7 +43,7 @@ app.use(expressErrorLogger)
 
 // Restapi routing
 app.get('/isRunning', (req, res) => res.send('Server is running')) // 서버 구동 확인용 router
-
+app.use('/news', newsRouter)
 
 
 const httpServer = createServer(app)

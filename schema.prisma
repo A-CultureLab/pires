@@ -41,7 +41,7 @@ model User {
   withdrawDate       DateTime? // 회원탈퇴 신철 일자
   withdrawReason     String?   @db.Text
 
-  addressId String
+  addressId String @unique
 
   address           Address            @relation(fields: [addressId], references: [id])
   pets              Pet[]
@@ -293,6 +293,16 @@ model PostReplyComment {
 
   userId        String
   postCommentId String
+}
+
+model News {
+  id        String   @id @default(cuid())
+  createdAt DateTime
+
+  image   String
+  title   String
+  content String @db.Text
+  link    String @unique
 }
 
 enum PostType {
