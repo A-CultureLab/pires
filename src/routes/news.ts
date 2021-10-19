@@ -6,6 +6,8 @@ import { NEWS_CRAWLING_KEYWORDS } from "../values";
 import ogs from 'open-graph-scraper'
 import parseEntities from 'parse-entities';
 
+require('dotenv').config()
+
 const router = Router()
 
 // cron 하루주기
