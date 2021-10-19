@@ -1,6 +1,16 @@
 import haversineDistance from "haversine-distance";
-import { objectType } from "nexus";
+import { inputObjectType, objectType } from "nexus";
 import getIUser from "../../utils/getIUser";
+
+export const PostsAdressFilterInput = inputObjectType({
+    name: 'PostsAdressFilterInput',
+    definition(t) {
+        t.nullable.string('area1Id')
+        t.nullable.string('area2Id')
+        t.nullable.string('area3Id')
+        t.nullable.string('landId')
+    }
+})
 
 export const Post = objectType({
     name: 'Post',

@@ -1,14 +1,6 @@
 import { inputObjectType, intArg, nonNull, nullable, queryField, stringArg } from "nexus"
+import { PostsAdressFilterInput } from "../types"
 
-const PostsAdressFilterInput = inputObjectType({
-    name: 'PostsAdressFilterInput',
-    definition(t) {
-        t.nullable.string('area1Id')
-        t.nullable.string('area2Id')
-        t.nullable.string('area3Id')
-        t.nullable.string('landId')
-    }
-})
 
 export const posts = queryField(t => t.nonNull.list.nonNull.field('posts', {
     type: 'Post',
