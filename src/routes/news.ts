@@ -23,8 +23,8 @@ router.post('/crawling', async (req, res, next) => {
                         display: 100
                     },
                     headers: {
-                        'X-Naver-Client-Id': process.env['X-Naver-Client-Id'],
-                        'X-Naver-Client-Secret': process.env['X-Naver-Client-Secret']
+                        'X-Naver-Client-Id': process.env['X_Naver_Client_Id'],
+                        'X-Naver-Client-Secret': process.env['X_Naver_Client_Secret']
                     }
                 })
                 // 검색된 데이터 가공
