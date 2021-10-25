@@ -23,7 +23,6 @@
     "@prisma/client": "2.23.0",
     "apollo-log": "^1.0.2",
     "apollo-server-express": "^2.25.2",
-    "array-shuffle": "^2.0.0",
     "axios": "^0.21.1",
     "compare-versions": "^3.6.0",
     "cross-env": "^7.0.3",

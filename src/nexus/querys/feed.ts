@@ -1,6 +1,7 @@
 import { intArg, nullable, objectType, queryField } from "nexus"
 import { PostsAdressFilterInput } from "../types"
 import arrayShuffle from 'array-shuffle';
+import { News, Post } from ".prisma/client";
 
 
 
@@ -48,11 +49,27 @@ export const feeds = queryField(t => t.nonNull.list.nonNull.field('feeds', {
         })
 
 
-        const data = arrayShuffle([
-            ...posts.map(post => ({ id: post.id, post })),
-            ...news.map(v => ({ id: v.id, news: v }))
-        ])
+        const data: { id: string, post?: Post, news?: News }[] = []
 
+        let postCount = 0
+        let newsCount = 0
+
+        for (let i = 0; i < posts.length + news.length; i++) {
+            const pushPost = () => {
+                data.push({ id: posts[postCount].id, post: posts[postCount] })
+                postCount++
+            }
+            const pushNews = () => {
+                data.push({ id: news[newsCount].id, news: news[newsCount] })
+                newsCount++
+            }
+
+            if (postCount === posts.length) pushNews()
+            else if (newsCount === news.length) pushPost()
+            else if (postCount >= 2 && !!data[i - 1].post && !!data[i - 2].post) pushNews() // 앞에 두게가 포스트라면 뉴스 하나 추가
+            else pushPost()
+
+        }
 
         return data
     }
