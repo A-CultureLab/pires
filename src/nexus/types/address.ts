@@ -22,8 +22,22 @@ export const Address = objectType({
         //
 
         t.model.user()
-
-        t.nonNull.string('adressShort', {
+        t.nonNull.string('addressFull', {
+            resolve: async ({ id }, _, ctx) => {
+                const data = await ctx.prisma.address.findUnique({
+                    where: { id },
+                    include: {
+                        area1: true,
+                        area2: true,
+                        area3: true,
+                        land: true
+                    }
+                })
+                if (!data) throw new Error
+                return `${data.area1.name} ${data.area2.name} ${data.area3.name} ${data.land.buildingName || data.land.buildingName}`
+            }
+        })
+        t.nonNull.string('addressShort', {
             resolve: async ({ area2Id }, _, ctx) => {
                 const area2 = await ctx.prisma.area2.findUnique({ where: { id: area2Id } })
                 if (!area2) throw new Error
