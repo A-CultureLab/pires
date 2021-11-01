@@ -3,6 +3,7 @@ import compareVersions from "compare-versions";
 import { nanoid } from "nanoid";
 import { nonNull, objectType, queryField, stringArg } from "nexus"
 import option from '../../../option.json'
+import apolloError from "../../utils/apolloError";
 import { USER_CERTIFICATION_WHITE_LIST } from "../../values";
 
 export const UserCertificationInfo = objectType({
@@ -56,5 +57,28 @@ export const isUpdateRequire = queryField(t => t.nonNull.boolean('isUpdateRequir
     },
     resolve: (_, { version }, ctx) => {
         return compareVersions.compare(option.appTargetVersion, version, "<") || compareVersions.compare(option.appMinimumVersion, version, '>')
+    }
+}))
+
+export const InstagramIdToProfileObject = objectType({
+    name: 'InstagramIdToProfileObject',
+    definition: (t) => {
+        t.nonNull.string('name')
+        t.nonNull.string('image')
+    }
+})
+
+export const instagramIdToProfile = queryField(t => t.nonNull.field('instagramIdToProfile', {
+    type: InstagramIdToProfileObject,
+    args: {
+        instagramId: nonNull(stringArg())
+    },
+    resolve: async (_, { instagramId }, ctx) => {
+        const { data } = await axios.get(`https://www.instagram.com/${instagramId}/channel/?__a=1`)
+        if (!data?.graphql?.user) throw apolloError('유효하지 않은 인스타그램 아이디', 'INVALID_ID', { log: false, metaError: false, notification: false })
+        return {
+            name: data.graphql.user.full_name,
+            image: data.graphql.user.profile_pic_url
+        }
     }
 }))

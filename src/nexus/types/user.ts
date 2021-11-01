@@ -16,6 +16,7 @@ export const User = objectType({
         t.model.gender()
         t.model.birth()
         t.model.inflow()
+        t.model.instagramId()
         t.model.introduce()
         t.model.agreementDate()
         t.model.marketingPushDate()

@@ -19,6 +19,7 @@ export const SignupInput = inputObjectType({
 
         t.nonNull.string('addressId')
         t.nonNull.string('inflow')
+        t.nullable.string('instagramId')
         t.nonNull.string('introduce')
         t.nonNull.field('agreementDate', { type: 'DateTime' })
         t.nullable.field('marketingPushDate', { type: 'DateTime' })
@@ -41,6 +42,7 @@ export const signup = mutationField(t => t.nonNull.field('signup', {
             data: {
                 ...data,
                 snsLoginId: id,
+                instagramId: data.instagramId || null,
                 addressId: undefined,
                 address: { connect: { id: data.addressId } }
             }
@@ -54,6 +56,7 @@ export const UpdateUserInput = inputObjectType({
         t.nonNull.string('image')
         t.nonNull.string('addressId')
         t.nonNull.string('introduce')
+        t.nullable.string('instagramId')
     }
 })
 
@@ -70,6 +73,7 @@ export const updateUser = mutationField(t => t.nonNull.field('updateUser', {
             where: { id: user.id },
             data: {
                 ...data,
+                instagramId: data.instagramId || null,
                 addressId: undefined,
                 address: user.addressId !== data.addressId ? { connect: { id: data.addressId } } : undefined // 이미 연결이 되있다면 유지
             }
@@ -89,26 +93,26 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
         await ctx.prisma.pet.deleteMany({
             where: { userId: user.id }
         })
-        // 내가쓴 답글 삭제
-        await ctx.prisma.postReplyComment.deleteMany({
-            where: { userId: user.id }
-        })
-        // 내가쓴 댓글에 답글 삭제
-        await ctx.prisma.postReplyComment.deleteMany({
-            where: { postComment: { userId: user.id } }
-        })
-        // 내가쓴 댓글 삭제
-        await ctx.prisma.postComment.deleteMany({
-            where: { userId: user.id }
-        })
-        // 내가쓴 게시글에 댓글 삭제
-        await ctx.prisma.postComment.deleteMany({
-            where: { post: { userId: user.id } }
-        })
-        // 내가쓴 게시글 삭제
-        await ctx.prisma.post.deleteMany({
-            where: { userId: user.id }
-        })
+        // // 내가쓴 답글 삭제
+        // await ctx.prisma.postReplyComment.deleteMany({
+        //     where: { userId: user.id }
+        // })
+        // // 내가쓴 댓글에 답글 삭제
+        // await ctx.prisma.postReplyComment.deleteMany({
+        //     where: { postComment: { userId: user.id } }
+        // })
+        // // 내가쓴 댓글 삭제
+        // await ctx.prisma.postComment.deleteMany({
+        //     where: { userId: user.id }
+        // })
+        // // 내가쓴 게시글에 댓글 삭제
+        // await ctx.prisma.postComment.deleteMany({
+        //     where: { post: { userId: user.id } },
+        // })
+        // // 내가쓴 게시글 삭제
+        // await ctx.prisma.post.deleteMany({
+        //     where: { userId: user.id }
+        // })
         // 유저 정보 더미데이터로 덮어씌우기
         const updatedUser = await ctx.prisma.user.update({
             where: { id: user.id },
@@ -119,8 +123,9 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
                 name: '탈퇴한 사용자',
                 image: 'https://static.thenounproject.com/png/574748-200.png',
                 withdrawDate: new Date(),
+                instagramId: null,
                 withdrawReason: reason,
-                fcmToken: null
+                fcmToken: null,
             }
         })
         // 파이어베이스 유저 삭제
