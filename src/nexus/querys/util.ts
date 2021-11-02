@@ -74,8 +74,14 @@ export const instagramIdToProfile = queryField(t => t.nonNull.field('instagramId
         instagramId: nonNull(stringArg())
     },
     resolve: async (_, { instagramId }, ctx) => {
-        const { data } = await axios.get(`https://www.instagram.com/${instagramId}/channel/?__a=1`)
-        if (!data?.graphql?.user) throw apolloError('유효하지 않은 인스타그램 아이디', 'INVALID_ID', { log: false, metaError: false, notification: false })
+        const { data, status } = await axios.get(`https://www.instagram.com/${instagramId}/channel/?__a=1`, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'User-Agent': 'Mozilla'
+            }
+        })
+        console.log(data)
+        if (!data?.graphql?.user) throw apolloError('유효하지 않은 인스타그램 아이디 ' + status, 'INVALID_ID', { log: false, notification: false })
         return {
             name: data.graphql.user.full_name,
             image: data.graphql.user.profile_pic_url
