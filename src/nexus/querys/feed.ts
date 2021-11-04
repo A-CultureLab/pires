@@ -1,6 +1,5 @@
 import { intArg, nullable, objectType, queryField } from "nexus"
 import { PostsAdressFilterInput } from "../types"
-import arrayShuffle from 'array-shuffle';
 import { News, Post } from ".prisma/client";
 
 
