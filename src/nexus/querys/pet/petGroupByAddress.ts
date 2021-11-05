@@ -39,9 +39,10 @@ export const petGroupByAddress = queryField(t => t.nonNull.field('petGroupByAddr
 
         const groupBy = (() => {
             const delta = cameraRegion.latitudeDelta
-            if (delta > 0.5) return 'area1'
-            if (delta > 0.15) return 'area2'
-            if (delta > 0.03) return 'area3'
+            console.log(delta)
+            if (delta > 4) return 'area1'
+            if (delta > 0.16) return 'area2'
+            if (delta > 0.05) return 'area3'
             return 'land'
         })()
 
