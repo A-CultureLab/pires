@@ -3,21 +3,13 @@ import { nonNull, nullable, objectType, queryField, stringArg } from "nexus"
 import apolloError from "../../utils/apolloError"
 
 
-
-export const InstagramMedia = objectType({
-    name: 'InstagramMedia',
-    definition: (t) => {
-        t.nonNull.string('id')
-        t.nonNull.string('image')
-    }
-})
-
 export const MediaAndInstagramMedia = objectType({
     name: 'MediaAndInstagramMedia',
     definition(t) {
         t.nonNull.string('id')
         t.nullable.string('instagramEndCursor')
-        t.nullable.field('instagramMedia', { type: InstagramMedia })
+        t.nonNull.string('thumnail')
+        t.nullable.field('media', { type: 'Media' })
     }
 })
 
@@ -25,7 +17,7 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
     type: MediaAndInstagramMedia,
     args: {
         userId: nonNull(stringArg()),
-        instagramEndCursor: nullable(stringArg()), // 인스타그램 전용 커서 <- 해시 키라서 파싱 불가능
+        instagramEndCursor: nullable(stringArg()), // 인스타그램 전용 커서 <- 난수 키라서 파싱 불가능
     },
     resolve: async (_, { userId, instagramEndCursor }, ctx) => {
 
@@ -59,15 +51,25 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
             withCredentials: true
         })
 
-        return instagramMediaData.data.user.edge_owner_to_timeline_media.edges.map((v: any) => (
-            {
+        return instagramMediaData.data.user.edge_owner_to_timeline_media.edges.map(async (v: any) => {
+            const media =
+                await ctx.prisma.media.findUnique({ where: { id: v.node.id } })
+                ||
+                await ctx.prisma.media.create({
+                    data: {
+                        id: v.node.id,
+                        createdAt: new Date(v.node.taken_at_timestamp),
+                        content: '',
+                        isInstagram: true
+                    }
+                })
+
+            return {
                 id: v.node.id,
                 instagramEndCursor: instagramMediaData.data.user.edge_owner_to_timeline_media?.page_info?.end_cursor || undefined,
-                instagramMedia: {
-                    id: v.node.id,
-                    image: v.node.thumbnail_resources[0].src,
-                }
+                thumnail: v.node.thumbnail_resources[1].src,
+                media
             }
-        ))
+        })
     }
 }))
