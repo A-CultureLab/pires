@@ -36,6 +36,13 @@ export const User = objectType({
         t.model.likedPosts()
         t.model.postComments()
         t.model.postReplyComment()
+        t.model.medias()
+        t.model.likedMedias()
+        t.model.followers()
+        t.model.folliwings()
+        t.model.mediaComments()
+        t.model.mediaReplyComments()
+        t.model.mediaReplyTargetedComments()
         t.nonNull.int('notReadChatCount', {
             resolve: async ({ id }, { }, ctx) => {
                 return await ctx.prisma.chat.count({

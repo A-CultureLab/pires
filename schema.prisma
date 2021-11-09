@@ -44,17 +44,24 @@ model User {
 
   addressId String @unique
 
-  address           Address            @relation(fields: [addressId], references: [id])
-  pets              Pet[]
-  userChatRoomInfos UserChatRoomInfo[]
-  chats             Chat[]
-  reports           Report[]           @relation("userToReports") // 내가 신고 당한 내역
-  myReports         Report[]           @relation("userToMyReports") // 내 신고내역
-  posts             Post[]             @relation("UserToPost")
-  notificatedPosts  Post[]             @relation("UserToPostNotificatedUsers")
-  likedPosts        Post[]             @relation("UserToPostLikedUsers")
-  postComments      PostComment[]
-  postReplyComment  PostReplyComment[]
+  address                    Address             @relation(fields: [addressId], references: [id])
+  pets                       Pet[]
+  userChatRoomInfos          UserChatRoomInfo[]
+  chats                      Chat[]
+  reports                    Report[]            @relation("userToReports") // 내가 신고 당한 내역
+  myReports                  Report[]            @relation("userToMyReports") // 내 신고내역
+  posts                      Post[]              @relation("UserToPost")
+  notificatedPosts           Post[]              @relation("UserToPostNotificatedUsers")
+  likedPosts                 Post[]              @relation("UserToPostLikedUsers")
+  postComments               PostComment[]
+  postReplyComment           PostReplyComment[]
+  medias                     Media[]
+  likedMedias                Media[]             @relation("UserToMediaLikedUsers")
+  followers                  User[]              @relation("FollowersToFollowings")
+  folliwings                 User[]              @relation("FollowersToFollowings")
+  mediaComments              MediaComment[]
+  mediaReplyComments         MediaReplyComment[]
+  mediaReplyTargetedComments MediaReplyComment[] @relation("UserToMediaReplyTargetedComments")
 
   @@index([birth, gender])
 }
@@ -208,7 +215,8 @@ model Pet {
   neutered   Boolean // 중성화 유무
   vaccinated Boolean // 백신 접종 유무
 
-  user User @relation(fields: [userId], references: [id])
+  user        User    @relation(fields: [userId], references: [id])
+  tagedMedias Media[]
 
   userId String
 
@@ -304,6 +312,70 @@ model News {
   title   String
   content String @db.Text
   link    String @unique
+}
+
+model MediaImage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  orderKey Int
+
+  url     String
+  media   Media?  @relation(fields: [mediaId], references: [id])
+  mediaId String?
+
+  @@index([orderKey])
+}
+
+// Instagram Media도 고려하여 작성
+model Media {
+  id        String   @id @default(cuid())
+  createdAt DateTime
+
+  images  MediaImage[]
+  content String
+
+  user         User?          @relation(fields: [userId], references: [id]) // 작성자
+  tagedPets    Pet[] // 태그된 동물들
+  likedUsers   User[]         @relation("UserToMediaLikedUsers")
+  mediaComment MediaComment[]
+
+  userId String?
+
+  @@index([createdAt])
+}
+
+model MediaComment {
+  id        String   @id @default(cuid())
+  createdAt DateTime
+
+  content String
+
+  user              User                @relation(fields: [userId], references: [id])
+  media             Media               @relation(fields: [mediaId], references: [id])
+  mediaReplyComment MediaReplyComment[]
+
+  userId  String
+  mediaId String
+
+  @@index([createdAt])
+}
+
+model MediaReplyComment {
+  id        String   @id @default(cuid())
+  createdAt DateTime
+
+  content String
+
+  user         User         @relation(fields: [userId], references: [id])
+  targetUser   User?        @relation(fields: [targetUserId], references: [id], "UserToMediaReplyTargetedComments")
+  mediaComment MediaComment @relation(fields: [mediaCommentId], references: [id])
+
+  userId         String
+  targetUserId   String?
+  mediaCommentId String
+
+  @@index([createdAt])
 }
 
 enum PostType {

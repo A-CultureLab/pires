@@ -1,5 +1,5 @@
 import axios from "axios"
-import { inputObjectType, intArg, booleanArg, nullable, objectType, queryField, stringArg } from "nexus"
+import { nullable, objectType, queryField, stringArg } from "nexus"
 import apolloError from "../../utils/apolloError"
 
 
@@ -65,7 +65,7 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
                 instagramEndCursor: instagramMediaData.data.user.edge_owner_to_timeline_media?.page_info?.end_cursor || undefined,
                 instagramMedia: {
                     id: v.node.id,
-                    image: v.node.thumbnail_src,
+                    image: v.node.thumbnail_resources[0].src,
                 }
             }
         ))

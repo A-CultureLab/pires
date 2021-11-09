@@ -19,6 +19,7 @@ export const Pet = objectType({
         t.model.neutered()
         t.model.vaccinated()
         t.model.user()
+        t.model.tagedMedias()
         t.model.userId()
         t.nonNull.string('age', {
             resolve({ birth }) {
