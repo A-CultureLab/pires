@@ -7,6 +7,7 @@ export const Media = objectType({
         t.model.createdAt()
         t.model.images()
         t.model.content()
+        t.model.isInstagram()
         t.model.user()
         t.model.tagedPets()
         t.model.likedUsers()

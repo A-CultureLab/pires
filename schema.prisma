@@ -58,7 +58,7 @@ model User {
   medias                     Media[]
   likedMedias                Media[]             @relation("UserToMediaLikedUsers")
   followers                  User[]              @relation("FollowersToFollowings")
-  folliwings                 User[]              @relation("FollowersToFollowings")
+  followings                 User[]              @relation("FollowersToFollowings")
   mediaComments              MediaComment[]
   mediaReplyComments         MediaReplyComment[]
   mediaReplyTargetedComments MediaReplyComment[] @relation("UserToMediaReplyTargetedComments")
@@ -332,8 +332,9 @@ model Media {
   id        String   @id @default(cuid())
   createdAt DateTime
 
-  images  MediaImage[]
-  content String
+  images      MediaImage[]
+  content     String       @db.Text
+  isInstagram Boolean      @default(false)
 
   user         User?          @relation(fields: [userId], references: [id]) // 작성자
   tagedPets    Pet[] // 태그된 동물들
@@ -349,7 +350,7 @@ model MediaComment {
   id        String   @id @default(cuid())
   createdAt DateTime
 
-  content String
+  content String @db.Text
 
   user              User                @relation(fields: [userId], references: [id])
   media             Media               @relation(fields: [mediaId], references: [id])
@@ -365,7 +366,7 @@ model MediaReplyComment {
   id        String   @id @default(cuid())
   createdAt DateTime
 
-  content String
+  content String @db.Text
 
   user         User         @relation(fields: [userId], references: [id])
   targetUser   User?        @relation(fields: [targetUserId], references: [id], "UserToMediaReplyTargetedComments")

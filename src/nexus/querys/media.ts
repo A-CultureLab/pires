@@ -1,5 +1,5 @@
 import axios from "axios"
-import { nullable, objectType, queryField, stringArg } from "nexus"
+import { nonNull, nullable, objectType, queryField, stringArg } from "nexus"
 import apolloError from "../../utils/apolloError"
 
 
@@ -24,7 +24,7 @@ export const MediaAndInstagramMedia = objectType({
 export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('mediasByUserId', {
     type: MediaAndInstagramMedia,
     args: {
-        userId: nullable(stringArg()),
+        userId: nonNull(stringArg()),
         instagramEndCursor: nullable(stringArg()), // 인스타그램 전용 커서 <- 해시 키라서 파싱 불가능
     },
     resolve: async (_, { userId, instagramEndCursor }, ctx) => {

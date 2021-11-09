@@ -1,3 +1,4 @@
+import axios from "axios";
 import haversineDistance from "haversine-distance";
 import { objectType } from "nexus";
 import getIUser from "../../utils/getIUser";
@@ -39,17 +40,57 @@ export const User = objectType({
         t.model.medias()
         t.model.likedMedias()
         t.model.followers()
-        t.model.folliwings()
+        t.model.followings()
         t.model.mediaComments()
         t.model.mediaReplyComments()
         t.model.mediaReplyTargetedComments()
         t.nonNull.int('notReadChatCount', {
             resolve: async ({ id }, { }, ctx) => {
-                return await ctx.prisma.chat.count({
+                return ctx.prisma.chat.count({ where: { notReadUserChatRoomInfos: { some: { userId: id } } } })
+            }
+        })
+        t.nonNull.int('followerCount', {
+            resolve: async ({ id }, { }, ctx) => {
+                return ctx.prisma.user.count({ where: { followings: { some: { id } } } })
+            }
+        })
+        t.nonNull.int('followingCount', {
+            resolve: async ({ id }, { }, ctx) => {
+                return ctx.prisma.user.count({ where: { followings: { some: { id } } } })
+            }
+        })
+        t.nonNull.int('mediaCount', {
+            resolve: async ({ id, instagramId }, { }, ctx) => {
+                const localMediaCount = await ctx.prisma.media.count({ where: { userId: id, isInstagram: false } })
+                try {
+                    if (!instagramId) return localMediaCount
+
+                    const { data: instagramUserData } = await axios.get(`https://www.instagram.com/${instagramId}/?__a=1`, {
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            'User-Agent': 'Mozilla',
+                            'Cookie': `sessionid=${process.env.INSTA_SESSION_ID}; Path=/; Domain=.instagram.com;`
+                        },
+                        withCredentials: true
+                    })
+
+                    return localMediaCount + instagramUserData.graphql.user.edge_owner_to_timeline_media.count
+                } catch (error) {
+                    return localMediaCount
+                }
+            }
+        })
+        t.nonNull.boolean('isIFollowed', {
+            resolve: async ({ id }, { }, ctx) => {
+                const user = await getIUser(ctx, true)
+                if (!user) return false
+                const currentUser = await ctx.prisma.user.findFirst({
                     where: {
-                        notReadUserChatRoomInfos: { some: { userId: id } }
+                        id: user.id,
+                        followings: { some: { id } }
                     }
                 })
+                return !!currentUser
             }
         })
         t.nonNull.int('age', {
