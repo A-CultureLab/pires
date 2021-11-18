@@ -67,7 +67,7 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
             return {
                 id: v.node.id,
                 instagramEndCursor: instagramMediaData.data.user.edge_owner_to_timeline_media?.page_info?.end_cursor || undefined,
-                thumnail: v.node.thumbnail_resources[1].src,
+                thumnail: v.node.thumbnail_resources[2].src,
                 media
             }
         })
