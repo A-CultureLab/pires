@@ -6,6 +6,7 @@ export type ErrorCode =
     | 'INVALID_ID'
     | 'NO_PERMISSION'
     | 'INVALID_ARGS'
+    | 'NOT_MATCH'
 
 const apolloError = (
     message: string,
