@@ -35,7 +35,7 @@ export const requestPhoneVerify = mutationField(t => t.nonNull.field('requestPho
         if (!phoneUnique && !user) throw apolloError('가입하지 않은 유저입니다', 'NO_PERMISSION')
 
         // 난수 생성
-        const code = Array(4).fill(0).map(v => ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'][Math.floor(Math.random() * 10)])
+        const code = Array(4).fill(0).map(v => ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'][Math.floor(Math.random() * 10)]).join('')
         console.log(code)
         // JWT 생성 유효기간 5분
         const phoneVerifyCodeToken = jwt.sign({ phone, code }, process.env.JWT_SECRET, { expiresIn: '5m' })
@@ -124,6 +124,7 @@ export const signup = mutationField(t => t.nonNull.field('signup', {
         const { instagramId, password, ..._data } = data
 
         // password hash
+        if (!/^[a-zA-Z0-9]{8,20}$/.test(password)) throw apolloError('비밀번호는 숫자와 영문자 조합으로 8~20자리를 사용해야 합니다', 'INVALID_ARGS')
         const salt = bcrypt.genSaltSync(10)
         const passwordHash = bcrypt.hashSync(password, salt)
 
