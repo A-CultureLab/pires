@@ -24,7 +24,7 @@ model User {
   phone             String    @unique
   password          String // 패스워드 해시값
   profileId         String    @unique
-  image             String
+  image             String?
   name              String
   gender            Gender
   birth             DateTime

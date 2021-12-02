@@ -64,28 +64,6 @@ export const confirmPhoneVerify = mutationField(t => t.nonNull.field('confirmPho
         return phoneVerifySuccessToken
     }
 }))
-// 회원가입
-export const SignupInput = inputObjectType({
-    name: 'SignupInput',
-    definition(t) {
-        t.nonNull.string('password')
-
-        t.nonNull.string('image')
-        t.nonNull.string('profileId')
-        t.nonNull.string('name')
-        t.nonNull.field('gender', { type: 'Gender' })
-        t.nonNull.field('birth', { type: 'DateTime' })
-        t.nonNull.string('addressId')
-
-        t.nullable.string('instagramId')
-        t.nonNull.string('introduce')
-
-        t.nonNull.string('inflow')
-
-        t.nonNull.field('agreementDate', { type: 'DateTime' })
-        t.nullable.field('marketingPushDate', { type: 'DateTime' })
-    }
-})
 
 export const changePassword = mutationField(t => t.nonNull.field('changePassword', {
     type: 'Boolean',
@@ -110,6 +88,30 @@ export const changePassword = mutationField(t => t.nonNull.field('changePassword
         return true
     }
 }))
+
+
+// 회원가입
+export const SignupInput = inputObjectType({
+    name: 'SignupInput',
+    definition(t) {
+        t.nonNull.string('password')
+
+        t.nullable.string('image')
+        t.nonNull.string('profileId')
+        t.nonNull.string('name')
+        t.nonNull.field('gender', { type: 'Gender' })
+        t.nonNull.field('birth', { type: 'DateTime' })
+        t.nonNull.string('addressId')
+
+        t.nullable.string('instagramId')
+        t.nonNull.string('introduce')
+
+        t.nonNull.string('inflow')
+
+        t.nonNull.field('agreementDate', { type: 'DateTime' })
+        t.nullable.field('marketingPushDate', { type: 'DateTime' })
+    }
+})
 
 export const signup = mutationField(t => t.nonNull.field('signup', {
     type: 'String',

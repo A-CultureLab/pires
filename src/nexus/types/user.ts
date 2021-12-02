@@ -12,7 +12,9 @@ export const User = objectType({
         t.model.phone()
         t.model.profileId()
         t.model.name()
-        t.model.image()
+        t.nonNull.string('image', {
+            resolve: ({ image }) => image || 'https://sworna.com/wp-content/uploads/2020/07/pp.png'
+        })
         t.model.gender()
         t.model.birth()
         t.model.inflow()
