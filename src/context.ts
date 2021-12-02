@@ -43,7 +43,7 @@ export const createContext = async (expressContext: ExpressContext): Promise<Con
     let iUserId = ''
     let iUser = null
     try {
-        const verify = jwt.verify(expressContext.req.headers.accessToken as string || '', process.env.JWT_SECRET) as { userId: string }
+        const verify = jwt.verify(expressContext.req.headers.authorization?.replace('Bearer ', '') || '', process.env.JWT_SECRET) as { userId: string }
         iUserId = verify.userId
         iUser = await prisma.user.findUnique({ where: { id: iUserId } })
     } catch (error) { }
