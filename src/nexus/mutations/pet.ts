@@ -1,5 +1,4 @@
 import { mutationField, nonNull, inputObjectType, stringArg, list, intArg } from "nexus";
-import getIUser from "../../utils/getIUser";
 
 export const RegistPetInput = inputObjectType({
     name: 'RegistPetInput',

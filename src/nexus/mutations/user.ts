@@ -270,6 +270,7 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
             where: { id: ctx.iUserId },
             data: {
                 name: '탈퇴한 사용자',
+                phone: nanoid(20),
                 refreshToken: null,
                 profileId: nanoid(10),
                 password: nanoid(10),
