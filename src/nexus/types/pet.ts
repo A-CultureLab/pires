@@ -16,8 +16,6 @@ export const Pet = objectType({
         t.model.gender()
         t.model.birth()
         t.model.weight()
-        t.model.neutered()
-        t.model.vaccinated()
         t.model.user()
         t.model.tagedMedias()
         t.model.userId()

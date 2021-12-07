@@ -204,16 +204,14 @@ model Pet {
   updatedAt DateTime @updatedAt
   orderKey  Int // 어레이 정렬 키
 
-  name       String
-  image      String
-  type       PetType
-  species    String
-  character  String
-  gender     Gender
-  birth      DateTime
-  weight     Float
-  neutered   Boolean // 중성화 유무
-  vaccinated Boolean // 백신 접종 유무
+  name      String
+  image     String
+  type      PetType
+  species   String
+  character String
+  gender    Gender
+  birth     DateTime
+  weight    Float
 
   user        User    @relation(fields: [userId], references: [id])
   tagedMedias Media[]

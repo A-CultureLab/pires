@@ -185,7 +185,7 @@ export const getAccessToken = mutationField(t => t.nonNull.field('getAccessToken
         if (user.refreshToken !== refreshToken) throw apolloError('잘못된 리프레시 토큰입니다', 'INVALID_ARGS') // 리프레시토큰 유효 확인
 
         // AccessToken 생성
-        const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '3m' })
+        const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '10m' })
 
         return accessToken
     }
