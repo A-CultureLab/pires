@@ -7,7 +7,6 @@ import getIUser from "../../utils/getIUser"
 export const iUser = queryField(t => t.nonNull.field('iUser', {
     type: 'User',
     resolve: async (_, { }, ctx) => {
-        const user = await getIUser(ctx)
-        return user
+        return ctx.iUser
     }
 }))

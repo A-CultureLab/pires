@@ -13,7 +13,7 @@ export const User = objectType({
         t.model.profileId()
         t.model.name()
         t.nonNull.string('image', {
-            resolve: ({ image }) => image || 'https://sworna.com/wp-content/uploads/2020/07/pp.png'
+            resolve: ({ image }) => image || 'https://storage.googleapis.com/gilberto-silva/profileEmpty.png'
         })
         t.model.gender()
         t.model.birth()

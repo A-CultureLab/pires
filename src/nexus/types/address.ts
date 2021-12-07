@@ -34,7 +34,8 @@ export const Address = objectType({
                     }
                 })
                 if (!data) throw new Error
-                return `${data.area1.name} ${data.area2.name} ${data.area3.name} ${data.land.buildingName || data.land.buildingName}`
+                return `${data.area1.name} ${data.area2.name} ${data.area3.name}`
+                // ${data.land.buildingName || data.land.buildingName}
             }
         })
         t.nonNull.string('addressShort', {

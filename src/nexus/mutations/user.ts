@@ -194,9 +194,13 @@ export const UpdateUserInput = inputObjectType({
     name: 'UpdateUserInput',
     definition(t) {
         t.nonNull.string('image')
+        t.nonNull.string('profileId')
+        t.nonNull.string('name')
+        t.nonNull.field('gender', { type: 'Gender' })
+        t.nonNull.field('birth', { type: 'DateTime' })
         t.nonNull.string('addressId')
-        t.nonNull.string('introduce')
         t.nullable.string('instagramId')
+        t.nonNull.string('introduce')
     }
 })
 
@@ -206,16 +210,14 @@ export const updateUser = mutationField(t => t.nonNull.field('updateUser', {
         data: nonNull(UpdateUserInput)
     },
     resolve: async (_, { data }, ctx) => {
-        const user = await getIUser(ctx)
-
 
         return ctx.prisma.user.update({
-            where: { id: user.id },
+            where: { id: ctx.iUser.id },
             data: {
                 ...data,
                 instagramId: data.instagramId || null,
                 addressId: undefined,
-                address: user.addressId !== data.addressId ? { connect: { id: data.addressId } } : undefined // 이미 연결이 되있다면 유지
+                address: ctx.iUser.addressId !== data.addressId ? { connect: { id: data.addressId } } : undefined // 이미 연결이 되있다면 유지
             }
         })
     }

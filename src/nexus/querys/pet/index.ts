@@ -6,10 +6,9 @@ import groupByAddressIdGenerator from "../../../utils/groupByAddressIdGenerator"
 export const myPets = queryField(t => t.nonNull.list.nonNull.field('myPets', {
     type: 'Pet',
     resolve: async (_, { }, ctx) => {
-        const user = await getIUser(ctx)
 
         return ctx.prisma.pet.findMany({
-            where: { userId: user.id },
+            where: { userId: ctx.iUserId },
             orderBy: { orderKey: 'asc' }
         })
     }
