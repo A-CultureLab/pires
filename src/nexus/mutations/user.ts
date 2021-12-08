@@ -124,6 +124,8 @@ export const signup = mutationField(t => t.nonNull.field('signup', {
         const { phone } = jwt.verify(phoneVerifySuccessToken, process.env.JWT_SECRET) as { phone: string }
 
         const { instagramId, password, ..._data } = data
+        // 프로필 아이디 테스트
+        if (!(/^[_A-Za-z0-9\-]*$/.test(_data.profileId))) throw apolloError('아이디는 영문, 숫자, _, - 만 사용 가능합니다.', 'INVALID_ARGS')
 
         // password hash
         if (!/^[a-zA-Z0-9]{8,20}$/.test(password)) throw apolloError('비밀번호는 숫자와 영문자 조합으로 8~20자리를 사용해야 합니다', 'INVALID_ARGS')
@@ -211,6 +213,9 @@ export const updateUser = mutationField(t => t.nonNull.field('updateUser', {
     },
     resolve: async (_, { data }, ctx) => {
 
+        // 프로필 아이디 테스트
+        if (!(/^[_A-Za-z0-9\-]*$/.test(data.profileId))) throw apolloError('아이디는 영문, 숫자, _, - 만 사용 가능합니다.', 'INVALID_ARGS')
+
         return ctx.prisma.user.update({
             where: { id: ctx.iUser.id },
             data: {
@@ -274,7 +279,7 @@ export const withdraw = mutationField(t => t.nonNull.field('withdraw', {
                 refreshToken: null,
                 profileId: nanoid(10),
                 password: nanoid(10),
-                image: 'https://static.thenounproject.com/png/574748-200.png',
+                image: null,
                 withdrawDate: new Date(),
                 instagramId: null,
                 withdrawReason: reason,
