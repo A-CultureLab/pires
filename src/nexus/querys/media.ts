@@ -9,7 +9,7 @@ export const MediaAndInstagramMedia = objectType({
         t.nonNull.string('id')
         t.nullable.string('instagramEndCursor')
         t.nonNull.string('thumnail')
-        t.nullable.field('media', { type: 'Media' })
+        t.nonNull.field('media', { type: 'Media' })
     }
 })
 
@@ -18,8 +18,9 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
     args: {
         userId: nonNull(stringArg()),
         instagramEndCursor: nullable(stringArg()), // 인스타그램 전용 커서 <- 난수 키라서 파싱 불가능
+        endCursor: nullable(stringArg()) // mediaId
     },
-    resolve: async (_, { userId, instagramEndCursor }, ctx) => {
+    resolve: async (_, { userId, instagramEndCursor, endCursor }, ctx) => {
 
         if (instagramEndCursor === null) return [] // 최초 요청시 undifined 끝에 도달시 null
 
@@ -41,7 +42,7 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
         const { data: instagramMediaData } = await axios.get(`https://www.instagram.com/graphql/query`, {
             params: {
                 'query_hash': '472f257a40c653c64c666ce877d59d2b',
-                'variables': `{"id":"${instagramId}","first":12, "after":"${instagramEndCursor || ''}"}`
+                'variables': `{"id":"${instagramId}","first":15, "after":"${instagramEndCursor || ''}"}`
             },
             headers: {
                 'Access-Control-Allow-Origin': '*',
@@ -51,7 +52,7 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
             withCredentials: true
         })
 
-        return instagramMediaData.data.user.edge_owner_to_timeline_media.edges.map(async (v: any) => {
+        const instagramMedias = await Promise.all(instagramMediaData.data.user.edge_owner_to_timeline_media.edges.map(async (v: any) => {
             const media =
                 await ctx.prisma.media.findUnique({ where: { id: v.node.id } })
                 ||
@@ -70,6 +71,26 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
                 thumnail: v.node.thumbnail_resources[2].src,
                 media
             }
+        }))
+
+        const userMediaData = await ctx.prisma.media.findMany({
+            where: { userId, isInstagram: false },
+            orderBy: { createdAt: 'desc' },
+            include: { images: { orderBy: { orderKey: 'asc' } } },
+            take: 15,
+            cursor: !!endCursor ? { id: endCursor } : undefined,
+            skip: !!endCursor ? 1 : 0
         })
+        const userMedias = userMediaData.map((v) => ({
+            id: v.id,
+            thumnail: v.images[0].url,
+            media: v
+        }))
+
+        const sortedMedias = [...instagramMedias, ...userMedias]
+            .sort((a, b) => new Date(b.media.createdAt).getTime() - new Date(a.media.createdAt).getTime())
+            .slice(0, 15)
+        return sortedMedias
+
     }
 }))
