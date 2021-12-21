@@ -328,7 +328,7 @@ model MediaImage {
 // Instagram Media도 고려하여 작성
 model Media {
   id        String   @id @default(cuid())
-  createdAt DateTime
+  createdAt DateTime @default(now())
 
   images      MediaImage[]
   content     String       @db.Text
