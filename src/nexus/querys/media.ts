@@ -1,5 +1,5 @@
 import axios from "axios"
-import { nonNull, nullable, objectType, queryField, stringArg } from "nexus"
+import { intArg, nonNull, nullable, objectType, queryField, stringArg } from "nexus"
 import apolloError from "../../utils/apolloError"
 
 
@@ -61,7 +61,8 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
                         id: v.node.id,
                         createdAt: new Date(v.node.taken_at_timestamp),
                         content: '',
-                        isInstagram: true
+                        isInstagram: true,
+                        images: { create: { orderKey: 0, url: v.node.thumbnail_resources[2].src } }
                     }
                 })
 
@@ -92,5 +93,25 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
             .slice(0, 15)
         return sortedMedias
 
+    }
+}))
+
+
+export const mediasByPetId = queryField(t => t.nonNull.list.nonNull.field('mediasByPetId', {
+    type: 'Media',
+    args: {
+        petId: nonNull(stringArg()),
+        take: nullable(intArg({ default: 15 })),
+        skip: nullable(intArg({ default: 0 }))
+    },
+    resolve: (_, { petId, take, skip }, ctx) => {
+        return ctx.prisma.media.findMany({
+            where: {
+                tagedPets: { some: { id: petId } }
+            },
+            orderBy: { createdAt: 'desc' },
+            take: take || 0,
+            skip: skip || 0
+        })
     }
 }))

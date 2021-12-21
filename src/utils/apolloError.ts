@@ -7,6 +7,7 @@ export type ErrorCode =
     | 'NO_PERMISSION'
     | 'INVALID_ARGS'
     | 'NOT_MATCH'
+    | 'DB_ERROR'
 
 const apolloError = (
     message: string,

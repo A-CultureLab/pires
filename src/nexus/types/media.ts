@@ -15,5 +15,15 @@ export const Media = objectType({
         t.model.likedUsers()
         t.model.mediaComment()
         t.model.userId()
+        t.nonNull.string('thumnail', {
+            resolve: async ({ id }, { }, ctx) => {
+                const image = await ctx.prisma.mediaImage.findFirst({
+                    where: { mediaId: id },
+                    orderBy: { orderKey: 'asc' }
+                })
+                if (!image) throw apolloError('미디어 이미지가 없습니다.', 'DB_ERROR', { notification: false })
+                return image.url
+            }
+        })
     }
 })

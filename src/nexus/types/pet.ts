@@ -30,5 +30,14 @@ export const Pet = objectType({
                 return year.toString() + '세'
             }
         })
+        t.nonNull.int('mediaCount', {
+            resolve: async ({ id }, _, ctx) => {
+                return ctx.prisma.media.count({
+                    where: {
+                        tagedPets: { some: { id } }
+                    }
+                })
+            }
+        })
     }
 })
