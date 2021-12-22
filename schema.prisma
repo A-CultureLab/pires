@@ -57,13 +57,26 @@ model User {
   postReplyComment           PostReplyComment[]
   medias                     Media[]
   likedMedias                Media[]             @relation("UserToMediaLikedUsers")
-  followers                  User[]              @relation("FollowersToFollowings")
-  followings                 User[]              @relation("FollowersToFollowings")
+  followers                  Follow[]            @relation("UserToFollowers")
+  followings                 Follow[]            @relation("UserToFollowings")
   mediaComments              MediaComment[]
   mediaReplyComments         MediaReplyComment[]
   mediaReplyTargetedComments MediaReplyComment[] @relation("UserToMediaReplyTargetedComments")
 
   @@index([birth, gender, profileId, name])
+}
+
+model Follow {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  targetUser User @relation("UserToFollowers", fields: [targetUserId], references: [id])
+  user       User @relation("UserToFollowings", fields: [userId], references: [id])
+
+  targetUserId String
+  userId       String
+
+  @@index([targetUserId, userId, createdAt])
 }
 
 model UserChatRoomInfo {

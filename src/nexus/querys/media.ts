@@ -62,7 +62,8 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
                         createdAt: new Date(v.node.taken_at_timestamp),
                         content: '',
                         isInstagram: true,
-                        images: { create: { orderKey: 0, url: v.node.thumbnail_resources[2].src } }
+                        images: { create: { orderKey: 0, url: v.node.thumbnail_resources[2].src } },
+                        user: { connect: { id: userId } }
                     }
                 })
 
@@ -107,7 +108,8 @@ export const mediasByPetId = queryField(t => t.nonNull.list.nonNull.field('media
     resolve: (_, { petId, take, skip }, ctx) => {
         return ctx.prisma.media.findMany({
             where: {
-                tagedPets: { some: { id: petId } }
+                tagedPets: { some: { id: petId } },
+                isInstagram: false
             },
             orderBy: { createdAt: 'desc' },
             take: take || 0,

@@ -50,12 +50,12 @@ export const User = objectType({
         })
         t.nonNull.int('followerCount', {
             resolve: async ({ id }, { }, ctx) => {
-                return ctx.prisma.user.count({ where: { followings: { some: { id } } } })
+                return ctx.prisma.follow.count({ where: { targetUserId: id } })
             }
         })
         t.nonNull.int('followingCount', {
             resolve: async ({ id }, { }, ctx) => {
-                return ctx.prisma.user.count({ where: { followings: { some: { id } } } })
+                return ctx.prisma.follow.count({ where: { userId: id } })
             }
         })
         t.nonNull.int('mediaCount', {
@@ -81,15 +81,14 @@ export const User = objectType({
         })
         t.nonNull.boolean('isIFollowed', {
             resolve: async ({ id }, { }, ctx) => {
-                const user = await getIUser(ctx, true)
-                if (!user) return false
-                const currentUser = await ctx.prisma.user.findFirst({
+                if (!ctx.iUserId) return false
+                const follow = await ctx.prisma.follow.findFirst({
                     where: {
-                        id: user.id,
-                        followings: { some: { id } }
+                        userId: ctx.iUserId,
+                        targetUserId: id
                     }
                 })
-                return !!currentUser
+                return !!follow
             }
         })
         t.nonNull.int('age', {
