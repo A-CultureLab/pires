@@ -20,7 +20,7 @@ export const getIUser = async <B = false>(ctx: Context, ignoreError?: B): Promis
 
     token = token.replace('Bearer ', '')
 
-
+console.log(ctx.expressContext.req)
     const { uid } = await userAuth.verifyIdToken(token)
 
     // uid에 해당하는 user filed 가 없다면 유저를 생성

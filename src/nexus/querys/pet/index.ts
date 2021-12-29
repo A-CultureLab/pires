@@ -1,5 +1,4 @@
 import { inputObjectType, intArg, nonNull, nullable, queryField, stringArg } from "nexus";
-import getIUser from "../../../utils/getIUser";
 import groupByAddressIdGenerator from "../../../utils/groupByAddressIdGenerator";
 
 

@@ -1,4 +1,3 @@
-import axios from "axios";
 import { objectType } from "nexus";
 import apolloError from "../../utils/apolloError";
 

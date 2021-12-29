@@ -7,6 +7,7 @@ export const following = mutationField(t => t.field('following', {
         userId: nonNull(stringArg())
     },
     resolve: async (_, { userId }, ctx) => {
+        if (userId === ctx.iUserId) throw apolloError('자기 자신을 팔로우 할 수는 없습니다.', 'NO_PERMISSION')
         return ctx.prisma.follow.create({
             data: {
                 targetUser: { connect: { id: userId } },
@@ -22,7 +23,6 @@ export const disFollowing = mutationField(t => t.field('disFollowing', {
         userId: nonNull(stringArg())
     },
     resolve: async (_, { userId }, ctx) => {
-
         const follow = await ctx.prisma.follow.findFirst({
             where: {
                 targetUserId: userId,

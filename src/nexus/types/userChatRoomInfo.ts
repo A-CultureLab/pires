@@ -1,5 +1,4 @@
 import { objectType } from "nexus";
-import getIUser from "../../utils/getIUser";
 
 export const UserChatRoomInfo = objectType({
     name: 'UserChatRoomInfo',

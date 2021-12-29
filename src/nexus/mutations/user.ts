@@ -1,7 +1,5 @@
 import { booleanArg, inputObjectType, mutationField, nonNull, nullable, stringArg } from "nexus";
 
-import axios from "axios";
-import getIUser from "../../utils/getIUser";
 import { nanoid } from 'nanoid'
 import apolloError from "../../utils/apolloError";
 import jwt from 'jsonwebtoken'
@@ -297,10 +295,9 @@ export const updateFcmToken = mutationField(t => t.field('updateFcmToken', {
         token: nonNull(stringArg())
     },
     resolve: async (_, { token }, ctx) => {
-        const { id } = await getIUser(ctx)
 
         const user = await ctx.prisma.user.update({
-            where: { id },
+            where: { id: ctx.iUserId },
             data: { fcmToken: token }
         })
 

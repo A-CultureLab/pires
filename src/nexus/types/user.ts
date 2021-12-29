@@ -1,7 +1,5 @@
 import axios from "axios";
-import haversineDistance from "haversine-distance";
 import { objectType } from "nexus";
-import getIUser from "../../utils/getIUser";
 
 export const User = objectType({
     name: 'User',

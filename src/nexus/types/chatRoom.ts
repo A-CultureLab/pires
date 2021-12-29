@@ -1,7 +1,6 @@
 import { objectType } from "nexus";
 import apolloError from "../../utils/apolloError";
 import chatRoomIdGenerator from "../../utils/chatRoomIdGenerator";
-import getIUser from "../../utils/getIUser";
 import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator";
 
 export const ChatRoom = objectType({
@@ -19,9 +18,8 @@ export const ChatRoom = objectType({
             resolve: async ({ id, type }, { }, ctx) => {
                 if (type === 'group') return false
 
-                const user = await getIUser(ctx)
                 const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({
-                    where: { id: userChatRoomInfoIdGenerator.generate(id, user.id) },
+                    where: { id: userChatRoomInfoIdGenerator.generate(id, ctx.iUserId) },
                 })
 
                 return userChatRoomInfo?.blocked || false
@@ -31,9 +29,8 @@ export const ChatRoom = objectType({
             resolve: async ({ id, type }, { }, ctx) => {
                 if (type === 'group') return false
 
-                const user = await getIUser(ctx)
                 const userIds = chatRoomIdGenerator.parse(id)
-                const otherUserId = userIds[0] === user.id ? userIds[1] : userIds[0]
+                const otherUserId = userIds[0] === ctx.iUserId ? userIds[1] : userIds[0]
 
                 const otherUserChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({
                     where: { id: userChatRoomInfoIdGenerator.generate(id, otherUserId) },
@@ -44,10 +41,8 @@ export const ChatRoom = objectType({
         t.nullable.field('recentChat', {
             type: 'Chat',
             resolve: async ({ id }, { }, ctx) => {
-                const user = await getIUser(ctx)
-
                 const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({
-                    where: { id: userChatRoomInfoIdGenerator.generate(id, user.id) }
+                    where: { id: userChatRoomInfoIdGenerator.generate(id, ctx.iUserId) }
                 })
 
                 if (!userChatRoomInfo) throw apolloError('유효하지 않은 채팅방', 'INVALID_ID')
@@ -63,12 +58,11 @@ export const ChatRoom = objectType({
         })
         t.nonNull.string('name', {
             resolve: async ({ id, type }, { }, ctx) => {
-                const user = await getIUser(ctx)
                 const users = await ctx.prisma.user.findMany({
                     where: {
                         userChatRoomInfos: { some: { chatRoomId: id } },
                         withdrawDate: type === 'group' ? null : undefined,
-                        id: { not: user.id }
+                        id: { not: ctx.iUserId }
                     },
                     orderBy: {
                         name: 'asc',
@@ -86,12 +80,11 @@ export const ChatRoom = objectType({
         })
         t.nonNull.string('image', {
             resolve: async ({ id, type }, { }, ctx) => {
-                const user = await getIUser(ctx)
                 const users = await ctx.prisma.user.findMany({
                     where: {
                         userChatRoomInfos: { some: { chatRoomId: id } },
                         withdrawDate: type === 'group' ? null : undefined,
-                        id: { not: user.id }
+                        id: { not: ctx.iUserId }
                     },
                     orderBy: {
                         name: 'asc',
@@ -102,16 +95,15 @@ export const ChatRoom = objectType({
                     take: 1
                 })
 
-                return users[0].image
+                return users[0].image || ''
             }
         })
         t.nonNull.field('iUserChatRoomInfo', {
             type: 'UserChatRoomInfo',
             resolve: async ({ id }, { }, ctx) => {
-                const user = await getIUser(ctx)
                 const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.findFirst({
                     where: {
-                        userId: user.id,
+                        userId: ctx.iUserId,
                         chatRoomId: id
                     }
                 })
