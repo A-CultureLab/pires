@@ -15,6 +15,38 @@ export const Media = objectType({
         t.model.likedUsers()
         t.model.mediaComment()
         t.model.userId()
+        t.nonNull.int('likeCount', {
+            resolve: ({ id }, { }, ctx) => {
+                return ctx.prisma.mediaLike.count({
+                    where: { mediaId: id }
+                })
+            }
+        })
+        t.nonNull.int('commentCount', {
+            resolve: async ({ id }, { }, ctx) => {
+                const commentCount = await ctx.prisma.mediaComment.count({
+                    where: { mediaId: id }
+                })
+                const reployCommentCount = await ctx.prisma.mediaReplyComment.count({
+                    where: {
+                        mediaComment: { mediaId: id }
+                    }
+                })
+                return commentCount + reployCommentCount
+            }
+        })
+        t.nonNull.list.nonNull.field('recentComments', {
+            type: 'MediaComment',
+            resolve: ({ id }, { }, ctx) => {
+                return ctx.prisma.mediaComment.findMany({
+                    where: { mediaId: id },
+                    orderBy: {
+                        createdAt: 'desc'
+                    },
+                    take: 2
+                })
+            }
+        })
         t.nonNull.string('thumnail', {
             resolve: async ({ id }, { }, ctx) => {
                 const image = await ctx.prisma.mediaImage.findFirst({
@@ -23,6 +55,17 @@ export const Media = objectType({
                 })
                 if (!image) throw apolloError('미디어 이미지가 없습니다.', 'DB_ERROR', { notification: false })
                 return image.url
+            }
+        })
+        t.nonNull.boolean('isILiked', {
+            resolve: async ({ id }, _, ctx) => {
+                const mediaLike = await ctx.prisma.mediaLike.findFirst({
+                    where: {
+                        userId: ctx.iUserId,
+                        mediaId: id
+                    }
+                })
+                return !!mediaLike
             }
         })
     }

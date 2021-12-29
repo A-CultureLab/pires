@@ -89,6 +89,11 @@ export const User = objectType({
                 return !!follow
             }
         })
+        t.nonNull.boolean('isMe', {
+            resolve: ({ id }, { }, ctx) => {
+                return id === ctx.iUserId
+            }
+        })
         t.nonNull.int('age', {
             resolve: ({ birth }, { }, ctx) => {
                 const today = new Date()

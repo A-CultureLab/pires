@@ -3,6 +3,17 @@ import { intArg, nonNull, nullable, objectType, queryField, stringArg } from "ne
 import apolloError from "../../utils/apolloError"
 import instagramMediaIdGenerator from "../../utils/instagramMediaIdGenerator"
 
+export const media = queryField(t => t.nonNull.field('media', {
+    type: 'Media',
+    args: {
+        id: nonNull(stringArg())
+    },
+    resolve: async (_, { id }, ctx) => {
+        const media = await ctx.prisma.media.findUnique({ where: { id } })
+        if (!media) throw apolloError('유효하지 않은 미디어 아이디', 'INVALID_ID')
+        return media
+    }
+}))
 
 export const MediaAndInstagramMedia = objectType({
     name: 'MediaAndInstagramMedia',
