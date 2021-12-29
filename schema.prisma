@@ -275,7 +275,7 @@ model PostImage {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  url String
+  url String @db.LongText
 
   post Post? @relation(fields: [postId], references: [id])
 
@@ -331,7 +331,7 @@ model MediaImage {
 
   orderKey Int
 
-  url     String
+  url     String  @db.LongText
   media   Media?  @relation(fields: [mediaId], references: [id])
   mediaId String?
 
