@@ -9,6 +9,7 @@ export const Media = objectType({
         t.model.images()
         t.model.content()
         t.model.isInstagram()
+        t.model.instagramKey()
         t.model.user()
         t.model.tagedPets()
         t.model.likedUsers()

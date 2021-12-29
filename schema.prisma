@@ -343,9 +343,10 @@ model Media {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  images      MediaImage[]
-  content     String       @db.Text
-  isInstagram Boolean      @default(false)
+  images       MediaImage[]
+  content      String       @db.Text
+  isInstagram  Boolean      @default(false)
+  instagramKey String?
 
   user         User?          @relation(fields: [userId], references: [id]) // 작성자
   tagedPets    Pet[] // 태그된 동물들

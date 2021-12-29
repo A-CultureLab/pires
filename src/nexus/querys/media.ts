@@ -1,6 +1,7 @@
 import axios from "axios"
 import { intArg, nonNull, nullable, objectType, queryField, stringArg } from "nexus"
 import apolloError from "../../utils/apolloError"
+import instagramMediaIdGenerator from "../../utils/instagramMediaIdGenerator"
 
 
 export const MediaAndInstagramMedia = objectType({
@@ -53,22 +54,24 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
         })
 
         const instagramMedias = await Promise.all(instagramMediaData.data.user.edge_owner_to_timeline_media.edges.map(async (v: any) => {
+            const mediaId = instagramMediaIdGenerator.generate(userId, v.node.id)
             const media =
-                await ctx.prisma.media.findUnique({ where: { id: v.node.id } })
+                await ctx.prisma.media.findUnique({ where: { id: mediaId } })
                 ||
                 await ctx.prisma.media.create({
                     data: {
-                        id: v.node.id,
-                        createdAt: new Date(v.node.taken_at_timestamp),
+                        id: mediaId,
+                        createdAt: new Date(v.node.taken_at_timestamp * 1000),
                         content: '',
                         isInstagram: true,
+                        instagramKey: v.node.id,
                         images: { create: { orderKey: 0, url: v.node.thumbnail_resources[2].src } },
                         user: { connect: { id: userId } }
                     }
                 })
 
             return {
-                id: v.node.id,
+                id: mediaId,
                 instagramEndCursor: instagramMediaData.data.user.edge_owner_to_timeline_media?.page_info?.end_cursor || undefined,
                 thumnail: v.node.thumbnail_resources[2].src,
                 media
