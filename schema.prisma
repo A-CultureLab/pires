@@ -373,7 +373,7 @@ model MediaLike {
 
 model MediaComment {
   id        String   @id @default(cuid())
-  createdAt DateTime
+  createdAt DateTime @default(now())
 
   content String @db.Text
 
@@ -389,16 +389,16 @@ model MediaComment {
 
 model MediaReplyComment {
   id        String   @id @default(cuid())
-  createdAt DateTime
+  createdAt DateTime @default(now())
 
   content String @db.Text
 
   user         User         @relation(fields: [userId], references: [id])
-  targetUser   User?        @relation(fields: [targetUserId], references: [id], "UserToMediaReplyTargetedComments")
+  targetUser   User         @relation(fields: [targetUserId], references: [id], "UserToMediaReplyTargetedComments")
   mediaComment MediaComment @relation(fields: [mediaCommentId], references: [id])
 
   userId         String
-  targetUserId   String?
+  targetUserId   String
   mediaCommentId String
 
   @@index([createdAt])

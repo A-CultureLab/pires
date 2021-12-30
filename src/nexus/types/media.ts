@@ -27,12 +27,12 @@ export const Media = objectType({
                 const commentCount = await ctx.prisma.mediaComment.count({
                     where: { mediaId: id }
                 })
-                const reployCommentCount = await ctx.prisma.mediaReplyComment.count({
+                const replyCommentCount = await ctx.prisma.mediaReplyComment.count({
                     where: {
                         mediaComment: { mediaId: id }
                     }
                 })
-                return commentCount + reployCommentCount
+                return commentCount + replyCommentCount
             }
         })
         t.nonNull.list.nonNull.field('recentComments', {
