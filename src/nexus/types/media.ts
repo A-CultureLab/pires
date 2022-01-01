@@ -6,7 +6,6 @@ export const Media = objectType({
     definition(t) {
         t.model.id()
         t.model.createdAt()
-        t.model.images()
         t.model.content()
         t.model.isInstagram()
         t.model.instagramKey()
@@ -15,6 +14,15 @@ export const Media = objectType({
         t.model.likedUsers()
         t.model.mediaComment()
         t.model.userId()
+        t.nonNull.list.nonNull.field('images', {
+            type: 'MediaImage',
+            resolve: ({ id }, { }, ctx) => {
+                return ctx.prisma.mediaImage.findMany({
+                    where: { mediaId: id },
+                    orderBy: { orderKey: 'asc' }
+                })
+            }
+        })
         t.nonNull.int('likeCount', {
             resolve: ({ id }, { }, ctx) => {
                 return ctx.prisma.mediaLike.count({

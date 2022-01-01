@@ -33,6 +33,40 @@ export const createMedia = mutationField(t => t.nonNull.field('createMedia', {
     }
 }))
 
+export const updateMedia = mutationField(t => t.nonNull.field('updateMedia', {
+    type: 'Media',
+    args: {
+        id: nonNull(stringArg()),
+        input: nonNull(CreateMediaInput)
+    },
+    resolve: async (_, { id, input }, ctx) => {
+        const { content, imageUrls, taggedPetIds } = input
+
+        const media = await ctx.prisma.media.findUnique({ where: { id } })
+
+        if (!media) throw apolloError('존재하지 않는 게시물', 'INVALID_ID')
+        if (media.userId !== ctx.iUserId) throw apolloError('수정권한 없음', 'NO_PERMISSION')
+
+        // 기존 데이터 삭제
+        await Promise.all([
+            ctx.prisma.mediaImage.deleteMany({ where: { mediaId: id } }), // 이미지 삭제
+            ctx.prisma.media.update({ where: { id }, data: { tagedPets: { set: [] } } }) // 테그된 동물삭제
+        ])
+
+        return ctx.prisma.media.update({
+            where: { id },
+            data: {
+                content,
+                images: {
+                    createMany: { data: imageUrls.map((url, orderKey) => ({ url, orderKey })) }
+                },
+                tagedPets: { connect: taggedPetIds.map(id => ({ id })) }
+            }
+        })
+    }
+}))
+
+
 export const likeMedia = mutationField(t => t.nonNull.field('likeMedia', {
     type: 'Media',
     args: {
