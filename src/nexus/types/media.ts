@@ -54,7 +54,7 @@ export const Media = objectType({
                     orderBy: { orderKey: 'asc' }
                 })
                 if (!image) throw apolloError('미디어 이미지가 없습니다.', 'DB_ERROR', { notification: false })
-                return image.url
+                return image.url || ''
             }
         })
         t.nonNull.boolean('isILiked', {
