@@ -115,7 +115,7 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
                         createdAt: new Date(v.node.taken_at_timestamp * 1000),
                         content: '',
                         isInstagram: true,
-                        instagramKey: v.node.id,
+                        instagramKey: v.node.shortcode,
                         images: { create: { orderKey: 0, url: v.node.thumbnail_resources[2].src } },
                         user: { connect: { id: userId } }
                     }
