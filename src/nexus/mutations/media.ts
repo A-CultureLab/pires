@@ -88,4 +88,41 @@ export const disLikeMedia = mutationField(t => t.nonNull.field('disLikeMedia', {
 }))
 
 
+export const deleteMedia = mutationField(t => t.nonNull.field('deleteMedia', {
+    type: 'Media',
+    args: {
+        id: nonNull(stringArg())
+    },
+    resolve: async (_, { id }, ctx) => {
 
+        const media = await ctx.prisma.media.findUnique({
+            where: { id: id }
+        })
+
+        if (!media) throw apolloError('유효하지 않은 게시물 ID 입니다', 'INVALID_ID')
+        if (media.userId !== ctx.iUserId) throw apolloError('삭제 권한 없음', 'NO_PERMISSION')
+
+        // 이미지 삭제
+        await ctx.prisma.mediaImage.deleteMany({
+            where: { mediaId: id }
+        })
+        // 답글 삭제
+        await ctx.prisma.mediaReplyComment.deleteMany({
+            where: { mediaComment: { mediaId: id } }
+        })
+        // 댓글 삭제
+        await ctx.prisma.mediaComment.deleteMany({
+            where: { mediaId: id }
+        })
+        // 좋아요 삭제
+        await ctx.prisma.mediaLike.deleteMany({
+            where: { mediaId: id }
+        })
+
+
+        // 게시물 삭제
+        return ctx.prisma.media.delete({
+            where: { id }
+        })
+    }
+}))

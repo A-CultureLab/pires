@@ -99,7 +99,7 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
         })
         const userMedias = userMediaData.map((v) => ({
             id: v.id,
-            thumnail: v.images[0].url,
+            thumnail: v.images[0]?.url || '',
             media: v
         }))
 

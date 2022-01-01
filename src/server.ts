@@ -64,7 +64,7 @@ const apolloServer = new ApolloServer({
       console.log('Disconnected')
     }
   },
-  uploads: { maxFileSize: 10 * 1024 * 1024, maxFiles: 10 },
+  uploads: { maxFileSize: 10 * 1024 * 1024, maxFiles: 50 },
   playground: process.env.NODE_ENV === 'production' ? false : { settings: { "request.credentials": 'include' } }
 })
 
