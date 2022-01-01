@@ -1,5 +1,5 @@
 import axios from "axios"
-import { intArg, nonNull, nullable, objectType, queryField, stringArg } from "nexus"
+import { inputObjectType, intArg, nonNull, nullable, objectType, queryField, stringArg } from "nexus"
 import apolloError from "../../utils/apolloError"
 import instagramMediaIdGenerator from "../../utils/instagramMediaIdGenerator"
 
@@ -12,6 +12,46 @@ export const media = queryField(t => t.nonNull.field('media', {
         const media = await ctx.prisma.media.findUnique({ where: { id } })
         if (!media) throw apolloError('유효하지 않은 미디어 아이디', 'INVALID_ID')
         return media
+    }
+}))
+
+const MediasAdressFilterInput = inputObjectType({
+    name: 'MediasAdressFilterInput',
+    definition(t) {
+        t.nullable.string('area1Id')
+        t.nullable.string('area2Id')
+        t.nullable.string('area3Id')
+        t.nullable.string('landId')
+    }
+})
+
+
+export const recommendedMedias = queryField(t => t.nonNull.list.nonNull.field('recommendedMedias', {
+    type: 'Media',
+    args: {
+        filter: nullable(MediasAdressFilterInput),
+        take: nullable(intArg({ default: 10 })),
+        cursor: nullable(stringArg())
+    },
+    resolve: async (_, { take, cursor, filter }, ctx) => {
+        return ctx.prisma.media.findMany({
+            cursor: cursor ? { id: cursor } : undefined,
+            take: take || 0,
+            orderBy: {
+                createdAt: 'desc'
+            },
+            where: {
+                isInstagram: false,
+                user: filter ? {
+                    address: {
+                        area1Id: filter.area1Id || undefined,
+                        area2Id: filter.area2Id || undefined,
+                        area3Id: filter.area3Id || undefined,
+                        landId: filter.landId || undefined
+                    }
+                } : undefined
+            }
+        })
     }
 }))
 
