@@ -1,5 +1,6 @@
 import axios from "axios";
 import { objectType } from "nexus";
+import { USER_DEFAULT_PROFILE_IMAGE } from "../../values";
 
 export const User = objectType({
     name: 'User',
@@ -11,7 +12,7 @@ export const User = objectType({
         t.model.profileId()
         t.model.name()
         t.nonNull.string('image', {
-            resolve: ({ image }) => image || 'https://storage.googleapis.com/gilberto-silva/profileEmpty.png'
+            resolve: ({ image }) => image || USER_DEFAULT_PROFILE_IMAGE
         })
         t.model.gender()
         t.model.birth()

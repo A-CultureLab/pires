@@ -1,8 +1,6 @@
 import { intArg, nonNull, nullable, queryField, stringArg } from "nexus";
 import apolloError from "../../utils/apolloError";
-import chatRoomIdGenerator from "../../utils/chatRoomIdGenerator";
 
-import getIUser from "../../utils/getIUser";
 import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator";
 
 export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
@@ -14,11 +12,8 @@ export const chats = queryField(t => t.nonNull.list.nonNull.field('chats', {
     },
     resolve: async (_, { chatRoomId, cursor, take }, ctx) => {
 
-        const user = await getIUser(ctx)
-
-
         const userChatRoomInfo = await ctx.prisma.userChatRoomInfo.findUnique({
-            where: { id: userChatRoomInfoIdGenerator.generate(chatRoomId, user.id) }
+            where: { id: userChatRoomInfoIdGenerator.generate(chatRoomId, ctx.iUserId) }
         })
 
         if (!userChatRoomInfo) throw apolloError('초대되지 않은 채팅방입니다', 'NO_PERMISSION')

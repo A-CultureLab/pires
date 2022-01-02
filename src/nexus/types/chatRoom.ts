@@ -2,6 +2,7 @@ import { objectType } from "nexus";
 import apolloError from "../../utils/apolloError";
 import chatRoomIdGenerator from "../../utils/chatRoomIdGenerator";
 import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator";
+import { USER_DEFAULT_PROFILE_IMAGE } from "../../values";
 
 export const ChatRoom = objectType({
     name: 'ChatRoom',
@@ -95,7 +96,7 @@ export const ChatRoom = objectType({
                     take: 1
                 })
 
-                return users[0].image || ''
+                return users[0].image || USER_DEFAULT_PROFILE_IMAGE
             }
         })
         t.nonNull.field('iUserChatRoomInfo', {

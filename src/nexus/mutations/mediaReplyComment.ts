@@ -1,6 +1,5 @@
 import { mutationField, nonNull, stringArg } from "nexus";
 import apolloError from "../../utils/apolloError";
-import getIUser from "../../utils/getIUser";
 
 export const deleteMediaReplyComment = mutationField(t => t.nonNull.field('deleteMediaReplyComment', {
     type: 'MediaComment',

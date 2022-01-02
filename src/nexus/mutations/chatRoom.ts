@@ -1,7 +1,5 @@
-import { ChatRoom } from "@prisma/client"
 import { mutationField, nonNull, stringArg } from "nexus"
 import apolloError from "../../utils/apolloError"
-import getIUser from "../../utils/getIUser"
 import userChatRoomInfoIdGenerator from "../../utils/userChatRoomInfoIdGenerator"
 
 export const exitChatRoom = mutationField(t => t.nonNull.field('exitChatRoom', {
@@ -11,7 +9,6 @@ export const exitChatRoom = mutationField(t => t.nonNull.field('exitChatRoom', {
     },
     resolve: async (_, { id }, ctx) => {
 
-        const user = await getIUser(ctx)
         const preChatRoom = await ctx.prisma.chatRoom.findUnique({
             where: { id },
             include: {
@@ -26,17 +23,17 @@ export const exitChatRoom = mutationField(t => t.nonNull.field('exitChatRoom', {
         })
 
         if (!preChatRoom) throw apolloError('유효하지 않은 채팅방 아이디', 'INVALID_ID')
-        if (!preChatRoom.userChatRoomInfos.map(({ user: { id } }) => id).includes(user.id)) throw apolloError('이미 채팅방에서 나왔습니다', 'NO_PERMISSION') // 방에 없다면 에러
+        if (!preChatRoom.userChatRoomInfos.map(({ user: { id } }) => id).includes(ctx.iUserId)) throw apolloError('이미 채팅방에서 나왔습니다', 'NO_PERMISSION') // 방에 없다면 에러
 
         if (preChatRoom.type === 'private') {
             await ctx.prisma.userChatRoomInfo.update({
-                where: { id: userChatRoomInfoIdGenerator.generate(id, user.id) },
+                where: { id: userChatRoomInfoIdGenerator.generate(id, ctx.iUserId) },
                 data: { joinedAt: null }
             })
         }
         else if (preChatRoom.type === 'group') {
             await ctx.prisma.userChatRoomInfo.delete({
-                where: { id: userChatRoomInfoIdGenerator.generate(id, user.id) },
+                where: { id: userChatRoomInfoIdGenerator.generate(id, ctx.iUserId) },
             })
         }
 
