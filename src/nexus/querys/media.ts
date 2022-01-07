@@ -1,7 +1,59 @@
 import axios from "axios"
-import { nonNull, nullable, objectType, queryField, stringArg } from "nexus"
+import { inputObjectType, intArg, nonNull, nullable, objectType, queryField, stringArg } from "nexus"
 import apolloError from "../../utils/apolloError"
+import instagramMediaIdGenerator from "../../utils/instagramMediaIdGenerator"
 
+export const media = queryField(t => t.nonNull.field('media', {
+    type: 'Media',
+    args: {
+        id: nonNull(stringArg())
+    },
+    resolve: async (_, { id }, ctx) => {
+        const media = await ctx.prisma.media.findUnique({ where: { id } })
+        if (!media) throw apolloError('유효하지 않은 미디어 아이디', 'INVALID_ID')
+        return media
+    }
+}))
+
+const MediasAdressFilterInput = inputObjectType({
+    name: 'MediasAdressFilterInput',
+    definition(t) {
+        t.nullable.string('area1Id')
+        t.nullable.string('area2Id')
+        t.nullable.string('area3Id')
+        t.nullable.string('landId')
+    }
+})
+
+
+export const recommendedMedias = queryField(t => t.nonNull.list.nonNull.field('recommendedMedias', {
+    type: 'Media',
+    args: {
+        filter: nullable(MediasAdressFilterInput),
+        take: nullable(intArg({ default: 10 })),
+        cursor: nullable(stringArg())
+    },
+    resolve: async (_, { take, cursor, filter }, ctx) => {
+        return ctx.prisma.media.findMany({
+            cursor: cursor ? { id: cursor } : undefined,
+            take: take || 0,
+            orderBy: {
+                createdAt: 'desc'
+            },
+            where: {
+                isInstagram: false,
+                user: filter ? {
+                    address: {
+                        area1Id: filter.area1Id || undefined,
+                        area2Id: filter.area2Id || undefined,
+                        area3Id: filter.area3Id || undefined,
+                        landId: filter.landId || undefined
+                    }
+                } : undefined
+            }
+        })
+    }
+}))
 
 export const MediaAndInstagramMedia = objectType({
     name: 'MediaAndInstagramMedia',
@@ -9,7 +61,7 @@ export const MediaAndInstagramMedia = objectType({
         t.nonNull.string('id')
         t.nullable.string('instagramEndCursor')
         t.nonNull.string('thumnail')
-        t.nullable.field('media', { type: 'Media' })
+        t.nonNull.field('media', { type: 'Media' })
     }
 })
 
@@ -18,8 +70,9 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
     args: {
         userId: nonNull(stringArg()),
         instagramEndCursor: nullable(stringArg()), // 인스타그램 전용 커서 <- 난수 키라서 파싱 불가능
+        endCursor: nullable(stringArg()) // mediaId
     },
-    resolve: async (_, { userId, instagramEndCursor }, ctx) => {
+    resolve: async (_, { userId, instagramEndCursor, endCursor }, ctx) => {
 
         if (instagramEndCursor === null) return [] // 최초 요청시 undifined 끝에 도달시 null
 
@@ -41,7 +94,7 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
         const { data: instagramMediaData } = await axios.get(`https://www.instagram.com/graphql/query`, {
             params: {
                 'query_hash': '472f257a40c653c64c666ce877d59d2b',
-                'variables': `{"id":"${instagramId}","first":12, "after":"${instagramEndCursor || ''}"}`
+                'variables': `{"id":"${instagramId}","first":15, "after":"${instagramEndCursor || ''}"}`
             },
             headers: {
                 'Access-Control-Allow-Origin': '*',
@@ -51,25 +104,70 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
             withCredentials: true
         })
 
-        return instagramMediaData.data.user.edge_owner_to_timeline_media.edges.map(async (v: any) => {
+        const instagramMedias = await Promise.all(instagramMediaData.data.user.edge_owner_to_timeline_media.edges.map(async (v: any) => {
+            const mediaId = instagramMediaIdGenerator.generate(userId, v.node.id)
             const media =
-                await ctx.prisma.media.findUnique({ where: { id: v.node.id } })
+                await ctx.prisma.media.findUnique({ where: { id: mediaId } })
                 ||
                 await ctx.prisma.media.create({
                     data: {
-                        id: v.node.id,
-                        createdAt: new Date(v.node.taken_at_timestamp),
+                        id: mediaId,
+                        createdAt: new Date(v.node.taken_at_timestamp * 1000),
                         content: '',
-                        isInstagram: true
+                        isInstagram: true,
+                        instagramKey: v.node.shortcode,
+                        images: { create: { orderKey: 0, url: v.node.thumbnail_resources[2].src } },
+                        user: { connect: { id: userId } }
                     }
                 })
 
             return {
-                id: v.node.id,
+                id: mediaId,
                 instagramEndCursor: instagramMediaData.data.user.edge_owner_to_timeline_media?.page_info?.end_cursor || undefined,
                 thumnail: v.node.thumbnail_resources[2].src,
                 media
             }
+        }))
+
+        const userMediaData = await ctx.prisma.media.findMany({
+            where: { userId, isInstagram: false },
+            orderBy: { createdAt: 'desc' },
+            include: { images: { orderBy: { orderKey: 'asc' } } },
+            take: 15,
+            cursor: !!endCursor ? { id: endCursor } : undefined,
+            skip: !!endCursor ? 1 : 0
+        })
+        const userMedias = userMediaData.map((v) => ({
+            id: v.id,
+            thumnail: v.images[0]?.url || '',
+            media: v
+        }))
+
+        const sortedMedias = [...instagramMedias, ...userMedias]
+            .sort((a, b) => new Date(b.media.createdAt).getTime() - new Date(a.media.createdAt).getTime())
+            .slice(0, 15)
+        return sortedMedias
+
+    }
+}))
+
+
+export const mediasByPetId = queryField(t => t.nonNull.list.nonNull.field('mediasByPetId', {
+    type: 'Media',
+    args: {
+        petId: nonNull(stringArg()),
+        take: nullable(intArg({ default: 15 })),
+        skip: nullable(intArg({ default: 0 }))
+    },
+    resolve: (_, { petId, take, skip }, ctx) => {
+        return ctx.prisma.media.findMany({
+            where: {
+                tagedPets: { some: { id: petId } },
+                isInstagram: false
+            },
+            orderBy: { createdAt: 'desc' },
+            take: take || 0,
+            skip: skip || 0
         })
     }
 }))

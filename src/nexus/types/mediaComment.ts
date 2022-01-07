@@ -11,5 +11,12 @@ export const MediaComment = objectType({
         t.model.mediaReplyComment()
         t.model.userId()
         t.model.mediaId()
+        t.nonNull.int('replyCommentCount', {
+            resolve: ({ id }, { }, ctx) => {
+                return ctx.prisma.mediaReplyComment.count({
+                    where: { mediaCommentId: id }
+                })
+            }
+        })
     }
 })

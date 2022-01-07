@@ -9,3 +9,5 @@ export const NEWS_CRAWLING_KEYWORDS = [
     '고양이',
     '강아지'
 ]
+
+export const USER_DEFAULT_PROFILE_IMAGE = 'https://storage.googleapis.com/gilberto-silva/profileEmpty.png'

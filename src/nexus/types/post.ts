@@ -1,6 +1,4 @@
-import haversineDistance from "haversine-distance";
 import { inputObjectType, objectType } from "nexus";
-import getIUser from "../../utils/getIUser";
 
 export const PostsAdressFilterInput = inputObjectType({
     name: 'PostsAdressFilterInput',
@@ -46,13 +44,11 @@ export const Post = objectType({
         })
         t.nonNull.boolean('isILiked', {
             resolve: async ({ id }, { }, ctx) => {
-                const user = await getIUser(ctx, true)
-                if (!user) return false
                 const post = await ctx.prisma.post.findUnique({
                     where: { id },
                     include: {
                         likedUsers: {
-                            where: { id: user.id }
+                            where: { id: ctx.iUser.id }
                         }
                     }
                 })

@@ -1,19 +1,16 @@
 import { mutationField, nonNull, inputObjectType, stringArg, list, intArg } from "nexus";
-import getIUser from "../../utils/getIUser";
 
 export const RegistPetInput = inputObjectType({
     name: 'RegistPetInput',
     definition(t) {
-        t.nonNull.string('name')
         t.nonNull.string('image')
-        t.nonNull.field('type', { type: 'PetType' })
-        t.nonNull.string('species')
-        t.nonNull.string('character')
+        t.nonNull.string('name')
         t.nonNull.field('gender', { type: 'Gender' })
         t.nonNull.field('birth', { type: 'DateTime' })
         t.nonNull.float('weight')
-        t.nonNull.boolean('neutered')
-        t.nonNull.boolean('vaccinated')
+        t.nonNull.field('type', { type: 'PetType' })
+        t.nonNull.string('species')
+        t.nonNull.string('character')
     }
 })
 
@@ -23,10 +20,8 @@ export const registPet = mutationField(t => t.field('registPet', {
         data: nonNull(RegistPetInput)
     },
     resolve: async (_, { data }, ctx) => {
-        const user = await getIUser(ctx)
-
         const { _max } = await ctx.prisma.pet.aggregate({
-            where: { userId: user.id },
+            where: { userId: ctx.iUserId },
             _max: { orderKey: true }
         })
 
@@ -35,7 +30,7 @@ export const registPet = mutationField(t => t.field('registPet', {
                 ...data,
                 orderKey: _max.orderKey !== null ? _max.orderKey + 1 : 0,
                 user: {
-                    connect: { id: user.id }
+                    connect: { id: ctx.iUserId }
                 }
             }
         })

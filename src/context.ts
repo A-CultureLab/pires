@@ -3,6 +3,8 @@ import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
 import { PubSub } from 'graphql-subscriptions';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis, { RedisOptions } from 'ioredis';
+import jwt from 'jsonwebtoken'
+
 
 const {
     REDIS_HOSTNAME,
@@ -31,16 +33,26 @@ export interface Context {
     prisma: PrismaClient
     expressContext: ExpressContext
     pubsub: PubSub | RedisPubSub
-    userId?: string
+    iUserId: string
+    iUser: User
 }
 
 export const createContext = async (expressContext: ExpressContext): Promise<Context> => {
-    // const user = await getIUser({ expressContext } as Context, true)
+
+    // 유저 세부 정보들 담기
+    let iUserId = ''
+    let iUser = null
+    try {
+        const verify = jwt.verify(expressContext.req.headers.authorization?.replace('Bearer ', '') || '', process.env.JWT_SECRET) as { userId: string }
+        iUserId = verify.userId
+        iUser = await prisma.user.findUnique({ where: { id: iUserId } })
+    } catch (error) { }
 
     return {
         prisma,
         expressContext,
         pubsub,
-        // user
-    }
+        iUserId,
+        iUser
+    } as Context
 }

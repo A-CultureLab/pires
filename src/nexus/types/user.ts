@@ -1,7 +1,6 @@
 import axios from "axios";
-import haversineDistance from "haversine-distance";
 import { objectType } from "nexus";
-import getIUser from "../../utils/getIUser";
+import { USER_DEFAULT_PROFILE_IMAGE } from "../../values";
 
 export const User = objectType({
     name: 'User',
@@ -9,11 +8,12 @@ export const User = objectType({
         t.model.id()
         t.model.createdAt()
         t.model.updatedAt()
-        t.model.snsLoginId()
-        t.model.email()
-        t.model.uniqueKey()
+        t.model.phone()
+        t.model.profileId()
         t.model.name()
-        t.model.image()
+        t.nonNull.string('image', {
+            resolve: ({ image }) => image || USER_DEFAULT_PROFILE_IMAGE
+        })
         t.model.gender()
         t.model.birth()
         t.model.inflow()
@@ -21,9 +21,7 @@ export const User = objectType({
         t.model.introduce()
         t.model.agreementDate()
         t.model.marketingPushDate()
-        t.model.marketingEmailDate()
         t.model.withdrawDate()
-        t.model.fcmToken()
         t.model.withdrawReason()
         t.model.addressId()
         t.model.address()
@@ -51,12 +49,12 @@ export const User = objectType({
         })
         t.nonNull.int('followerCount', {
             resolve: async ({ id }, { }, ctx) => {
-                return ctx.prisma.user.count({ where: { followings: { some: { id } } } })
+                return ctx.prisma.follow.count({ where: { targetUserId: id } })
             }
         })
         t.nonNull.int('followingCount', {
             resolve: async ({ id }, { }, ctx) => {
-                return ctx.prisma.user.count({ where: { followings: { some: { id } } } })
+                return ctx.prisma.follow.count({ where: { userId: id } })
             }
         })
         t.nonNull.int('mediaCount', {
@@ -82,15 +80,19 @@ export const User = objectType({
         })
         t.nonNull.boolean('isIFollowed', {
             resolve: async ({ id }, { }, ctx) => {
-                const user = await getIUser(ctx, true)
-                if (!user) return false
-                const currentUser = await ctx.prisma.user.findFirst({
+                if (!ctx.iUserId) return false
+                const follow = await ctx.prisma.follow.findFirst({
                     where: {
-                        id: user.id,
-                        followings: { some: { id } }
+                        userId: ctx.iUserId,
+                        targetUserId: id
                     }
                 })
-                return !!currentUser
+                return !!follow
+            }
+        })
+        t.nonNull.boolean('isMe', {
+            resolve: ({ id }, { }, ctx) => {
+                return id === ctx.iUserId
             }
         })
         t.nonNull.int('age', {

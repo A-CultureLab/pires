@@ -17,30 +17,30 @@ datasource db {
 // }
 
 model User {
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // get from sns login
-  id                 String    @id @default(cuid())
-  snsLoginId         String    @unique
-  email              String    @unique
-  image              String
-  // get from user certification
-  uniqueKey          String    @unique // 다날 본인인증시 제공받는 ID
-  name               String
-  gender             Gender
-  birth              DateTime
+  id                String    @id @default(cuid())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  // 필수
+  phone             String    @unique
+  password          String // 패스워드 해시값
+  profileId         String    @unique
+  image             String?
+  name              String
+  gender            Gender
+  birth             DateTime
+  // 선택
+  introduce         String    @db.Text
+  instagramId       String? // 인스타그램 아이디
+  inflow            String // 유입 경로
+  // 약관
+  agreementDate     DateTime // 약관동의 일자
+  marketingPushDate DateTime? // 마케팅 푸시 수신일자
+  // 토큰
+  refreshToken      String?
+  fcmToken          String?
   //
-  inflow             String // 유입 경로
-  introduce          String    @db.Text
-  instagramId        String? // 인스타그램 아이디
-  agreementDate      DateTime // 약관동의 일자
-  marketingPushDate  DateTime? // 마케팅 푸시 수신일자
-  marketingEmailDate DateTime? // 마케팅 이메일 수신일자
-  fcmToken           String?
-  //
-  withdrawDate       DateTime? // 회원탈퇴 신철 일자
-  withdrawReason     String?   @db.Text
+  withdrawDate      DateTime? // 회원탈퇴 신철 일자
+  withdrawReason    String?   @db.Text
 
   addressId String @unique
 
@@ -56,14 +56,27 @@ model User {
   postComments               PostComment[]
   postReplyComment           PostReplyComment[]
   medias                     Media[]
-  likedMedias                Media[]             @relation("UserToMediaLikedUsers")
-  followers                  User[]              @relation("FollowersToFollowings")
-  followings                 User[]              @relation("FollowersToFollowings")
+  likedMedias                MediaLike[]
+  followers                  Follow[]            @relation("UserToFollowers")
+  followings                 Follow[]            @relation("UserToFollowings")
   mediaComments              MediaComment[]
   mediaReplyComments         MediaReplyComment[]
   mediaReplyTargetedComments MediaReplyComment[] @relation("UserToMediaReplyTargetedComments")
 
-  @@index([birth, gender])
+  @@index([birth, gender, profileId, name])
+}
+
+model Follow {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  targetUser User @relation("UserToFollowers", fields: [targetUserId], references: [id])
+  user       User @relation("UserToFollowings", fields: [userId], references: [id])
+
+  targetUserId String
+  userId       String
+
+  @@index([targetUserId, userId, createdAt])
 }
 
 model UserChatRoomInfo {
@@ -204,16 +217,14 @@ model Pet {
   updatedAt DateTime @updatedAt
   orderKey  Int // 어레이 정렬 키
 
-  name       String
-  image      String
-  type       PetType
-  species    String
-  character  String
-  gender     Gender
-  birth      DateTime
-  weight     Float
-  neutered   Boolean // 중성화 유무
-  vaccinated Boolean // 백신 접종 유무
+  name      String
+  image     String
+  type      PetType
+  species   String
+  character String
+  gender    Gender
+  birth     DateTime
+  weight    Float
 
   user        User    @relation(fields: [userId], references: [id])
   tagedMedias Media[]
@@ -264,7 +275,7 @@ model PostImage {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  url String
+  url String @db.LongText
 
   post Post? @relation(fields: [postId], references: [id])
 
@@ -320,7 +331,7 @@ model MediaImage {
 
   orderKey Int
 
-  url     String
+  url     String  @db.LongText
   media   Media?  @relation(fields: [mediaId], references: [id])
   mediaId String?
 
@@ -330,25 +341,39 @@ model MediaImage {
 // Instagram Media도 고려하여 작성
 model Media {
   id        String   @id @default(cuid())
-  createdAt DateTime
+  createdAt DateTime @default(now())
 
-  images      MediaImage[]
-  content     String       @db.Text
-  isInstagram Boolean      @default(false)
+  images       MediaImage[]
+  content      String       @db.Text
+  isInstagram  Boolean      @default(false)
+  instagramKey String?
 
-  user         User?          @relation(fields: [userId], references: [id]) // 작성자
+  user         User           @relation(fields: [userId], references: [id]) // 작성자
   tagedPets    Pet[] // 태그된 동물들
-  likedUsers   User[]         @relation("UserToMediaLikedUsers")
+  likedUsers   MediaLike[]
   mediaComment MediaComment[]
 
-  userId String?
+  userId String
 
   @@index([createdAt])
 }
 
+model MediaLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  media Media @relation(fields: [mediaId], references: [id])
+
+  userId  String
+  mediaId String
+
+  @@index([createdAt, userId, mediaId])
+}
+
 model MediaComment {
   id        String   @id @default(cuid())
-  createdAt DateTime
+  createdAt DateTime @default(now())
 
   content String @db.Text
 
@@ -364,16 +389,16 @@ model MediaComment {
 
 model MediaReplyComment {
   id        String   @id @default(cuid())
-  createdAt DateTime
+  createdAt DateTime @default(now())
 
   content String @db.Text
 
   user         User         @relation(fields: [userId], references: [id])
-  targetUser   User?        @relation(fields: [targetUserId], references: [id], "UserToMediaReplyTargetedComments")
+  targetUser   User         @relation(fields: [targetUserId], references: [id], "UserToMediaReplyTargetedComments")
   mediaComment MediaComment @relation(fields: [mediaCommentId], references: [id])
 
   userId         String
-  targetUserId   String?
+  targetUserId   String
   mediaCommentId String
 
   @@index([createdAt])

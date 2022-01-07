@@ -9,5 +9,5 @@ const userFirebase = admin.initializeApp({
 
 
 
-export const userAuth = userFirebase.auth()
+// export const userAuth = userFirebase.auth()
 export const userMessaging = userFirebase.messaging()

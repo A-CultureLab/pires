@@ -16,8 +16,6 @@ export const Pet = objectType({
         t.model.gender()
         t.model.birth()
         t.model.weight()
-        t.model.neutered()
-        t.model.vaccinated()
         t.model.user()
         t.model.tagedMedias()
         t.model.userId()
@@ -30,6 +28,15 @@ export const Pet = objectType({
 
                 if (month < 12) return (month + 1).toString() + '개월'
                 return year.toString() + '세'
+            }
+        })
+        t.nonNull.int('mediaCount', {
+            resolve: async ({ id }, _, ctx) => {
+                return ctx.prisma.media.count({
+                    where: {
+                        tagedPets: { some: { id } }
+                    }
+                })
             }
         })
     }

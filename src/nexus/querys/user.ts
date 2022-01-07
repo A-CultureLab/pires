@@ -1,59 +1,9 @@
-import axios from "axios"
 import { intArg, nonNull, nullable, queryField, stringArg } from "nexus"
-import { userAuth } from "../../lib/firebase"
-import apolloError from "../../utils/apolloError"
-import getIUser from "../../utils/getIUser"
 
 // Query - 내 정보를 가져옴
 export const iUser = queryField(t => t.nonNull.field('iUser', {
     type: 'User',
     resolve: async (_, { }, ctx) => {
-        const user = await getIUser(ctx)
-        return user
-    }
-}))
-
-// 회원가입 유무 확인
-export const isSignedup = queryField(t => t.nonNull.field('isSignedup', {
-    type: 'Boolean',
-    resolve: async (_, { }, ctx) => {
-        const user = await getIUser(ctx, true)
-        return !!user
-    }
-}))
-
-
-// kakao access token을 firebase token 으로 변경
-export const kakaoTokenToFirebaseToken = queryField(t => t.nonNull.field('kakaoTokenToFirebaseToken', {
-    type: 'String', // firebase token
-    args: {
-        kakaoAccessToken: nonNull(stringArg())
-    },
-    resolve: async (_, { kakaoAccessToken }, ctx) => {
-        // 카카오 rest api 로 유저 세부 정보 가져오기
-        const result = await axios.post(
-            'https://kapi.kakao.com/v2/user/me',
-            { property_keys: ['kakao_account.email', 'properties.nickname', 'properties.profile_image'] },
-            { headers: { 'Authorization': `Bearer ${kakaoAccessToken}` } }
-        )
-        if (!result.data.id) throw apolloError('유효하지 않은 아이디', 'INVALID_ID')
-        const kakaoUserId = `KAKAO:${result.data.id}`
-        const properties = {
-            email: result?.data?.kakao_account?.email,
-            displayName: result?.data?.properties?.nickname || undefined,
-            photoURL: result?.data?.properties?.profile_image || undefined,
-        }
-        // 파이어베이스에 유저 생성 or 업데이트
-        try {
-            await userAuth.updateUser(kakaoUserId, properties)
-        } catch (error: any) {
-            if (error.code !== 'auth/user-not-found') throw error
-            await userAuth.createUser({ ...properties, uid: kakaoUserId })
-        }
-
-        // 파이어베이스 토큰 생성
-        const firebaseToken = await userAuth.createCustomToken(kakaoUserId, { provider: 'KAKAO' })
-
-        return firebaseToken
+        return ctx.iUser
     }
 }))
