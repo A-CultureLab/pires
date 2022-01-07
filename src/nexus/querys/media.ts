@@ -78,7 +78,23 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
 
         const user = await ctx.prisma.user.findUnique({ where: { id: userId } })
         if (!user) throw apolloError('유효하지 않은 유저 입니다', 'INVALID_ID')
-        if (!user.instagramId) throw apolloError('인스타그램 아이디가 없는 유저', 'INVALID_ID', { notification: false, log: false })
+
+        const userMediaData = await ctx.prisma.media.findMany({
+            where: { userId, isInstagram: false },
+            orderBy: { createdAt: 'desc' },
+            include: { images: { orderBy: { orderKey: 'asc' } } },
+            take: 15,
+            cursor: !!endCursor ? { id: endCursor } : undefined,
+            skip: !!endCursor ? 1 : 0
+        })
+        const userMedias = userMediaData.map((v) => ({
+            id: v.id,
+            thumnail: v.images[0]?.url || '',
+            media: v
+        }))
+
+        if (!user.instagramId) return userMedias
+
 
         const { data: instagramUserData } = await axios.get(`https://www.instagram.com/${user.instagramId}/?__a=1`, {
             headers: {
@@ -88,7 +104,7 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
             },
             withCredentials: true
         })
-        if (!instagramUserData?.graphql?.user) throw apolloError('잘 못된 인스타그램 아이디', 'INVALID_ID', { notification: false })
+        if (!instagramUserData?.graphql?.user) return userMedias
         const instagramId = instagramUserData.graphql.user.id
 
         const { data: instagramMediaData } = await axios.get(`https://www.instagram.com/graphql/query`, {
@@ -129,19 +145,6 @@ export const mediasByUserId = queryField(t => t.nonNull.list.nonNull.field('medi
             }
         }))
 
-        const userMediaData = await ctx.prisma.media.findMany({
-            where: { userId, isInstagram: false },
-            orderBy: { createdAt: 'desc' },
-            include: { images: { orderBy: { orderKey: 'asc' } } },
-            take: 15,
-            cursor: !!endCursor ? { id: endCursor } : undefined,
-            skip: !!endCursor ? 1 : 0
-        })
-        const userMedias = userMediaData.map((v) => ({
-            id: v.id,
-            thumnail: v.images[0]?.url || '',
-            media: v
-        }))
 
         const sortedMedias = [...instagramMedias, ...userMedias]
             .sort((a, b) => new Date(b.media.createdAt).getTime() - new Date(a.media.createdAt).getTime())
